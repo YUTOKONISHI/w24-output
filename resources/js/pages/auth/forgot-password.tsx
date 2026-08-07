@@ -1,28 +1,33 @@
-import { useState } from 'react';
+import { Link, router } from '@inertiajs/react';
 import { useForm } from 'react-hook-form';
-import { router, Link } from '@inertiajs/react';
+import { toast } from 'sonner';
 import { AuthCard } from '@/components/AuthCard';
-import { FormField } from '@/components/FormField';
-import { SubmitButton } from '@/components/SubmitButton';
+import { Button } from '@/components/ui/button';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 
 type ForgotPasswordForm = {
   email: string;
 };
 
 export default function ForgotPassword() {
-  const [status, setStatus] = useState<string | null>(null);
-  const {
-    register,
-    handleSubmit,
-    setError,
-    formState: { errors, isSubmitting },
-  } = useForm<ForgotPasswordForm>();
+  const form = useForm<ForgotPasswordForm>({ defaultValues: { email: '' } });
+  const { isSubmitting } = form.formState;
 
   function onSubmit(data: ForgotPasswordForm) {
     router.post('/app/forgot-password', data, {
-      onSuccess: () => setStatus('パスワードリセットメールを送信しました'),
+      onSuccess: () => toast.success('パスワードリセットメールを送信しました'),
       onError: (err) => {
-        if (err.email) setError('email', { message: err.email });
+        if (err.email) {
+          form.setError('email', { message: err.email });
+        }
       },
     });
   }
@@ -32,25 +37,32 @@ export default function ForgotPassword() {
       title="パスワードをお忘れですか？"
       description="登録済みのメールアドレスを入力してください。パスワードリセットリンクをお送りします。"
     >
-      {status && <p className="text-success-600 text-sm mb-4">{status}</p>}
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
-          label="メールアドレス"
-          type="email"
-          error={errors.email}
-          {...register('email', { required: 'メールアドレスを入力してください' })}
-        />
-        <SubmitButton
-          isSubmitting={isSubmitting}
-          label="リセットリンクを送信"
-          loadingLabel="送信中..."
-        />
-        <div className="text-sm mt-4">
-          <Link href="/app/login" className="text-primary-700 hover:underline">
-            ログインに戻る
-          </Link>
-        </div>
-      </form>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <FormField
+            control={form.control}
+            name="email"
+            rules={{ required: 'メールアドレスを入力してください' }}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>メールアドレス</FormLabel>
+                <FormControl>
+                  <Input type="email" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Button type="submit" disabled={isSubmitting} className="w-full">
+            {isSubmitting ? '送信中...' : 'リセットリンクを送信'}
+          </Button>
+          <div className="text-sm mt-4">
+            <Link href="/app/login" className="text-primary-700 hover:underline">
+              ログインに戻る
+            </Link>
+          </div>
+        </form>
+      </Form>
     </AuthCard>
   );
 }

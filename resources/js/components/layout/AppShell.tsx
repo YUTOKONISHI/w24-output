@@ -1,32 +1,21 @@
 import { Head, Link } from '@inertiajs/react';
 import { Bell, Home, LogOut, Settings } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { Toaster } from '@/components/ui/sonner';
 import { useAuth } from '@/hooks/useAuth';
 
-/**
- * 一般ユーザー向け画面の共通シェル（PCヘッダー / mainラッパー / スマホ用ボトムナビ）。
- *
- * Inertia の永続レイアウト（Page.layout）ではなく JSX ラップで使う。
- * 状態を持たない見た目だけのシェルなので再マウントの実害が無いため。
- * 通知バッジやスクロール位置など状態を持たせる場合は永続レイアウトへの移行を検討すること。
- */
-
-// ナビ項目の唯一の定義。PCヘッダーとスマホ用ボトムナビの両方をここから描画する。
-// href が null の項目は遷移先が未実装。/settings を実装したらここだけ直せばよい。
 const NAV_ITEMS = [
   { key: 'dashboard', href: '/app/dashboard', icon: Home, label: 'ダッシュボード' },
   { key: 'notifications', href: '/app/notifications', icon: Bell, label: '通知' },
-  { key: 'settings', href: null, icon: Settings, label: '設定' },
+  { key: 'settings', href: '/app/settings', icon: Settings, label: '設定' },
 ] as const;
 
-// ヘッダーは左端がタイトルなのでダッシュボードへの導線を持たない。
 const HEADER_ITEMS = NAV_ITEMS.filter((item) => item.key !== 'dashboard');
 
 type NavItem = (typeof NAV_ITEMS)[number];
 
 type NavKey = NavItem['key'];
 
-// header はアイコンのみ、bottom はアイコン + ラベルの縦並び。
 type Variant = 'header' | 'bottom';
 
 type NavItemViewProps = {
@@ -45,23 +34,6 @@ function NavItemView({ item, isActive, variant }: NavItemViewProps) {
     </>
   );
 
-  // 遷移先が未実装の項目。hover で色が変わると押せるように見えるため、
-  // disabled にしてキーボードフォーカスからも外す。
-  if (href === null) {
-    return (
-      <button
-        type="button"
-        disabled
-        title={`${label}（準備中）`}
-        className={`${layout}text-disabled cursor-not-allowed`}
-      >
-        {content}
-      </button>
-    );
-  }
-
-  // 自分自身へのリンクは Inertia が現在URLへの再訪問として処理するため、
-  // ページの再取得・再描画が走ってしまう。アクティブ項目はリンクにしない。
   if (isActive) {
     return (
       <span aria-current="page" title={label} className={`${layout}text-primary-600`}>
@@ -70,7 +42,6 @@ function NavItemView({ item, isActive, variant }: NavItemViewProps) {
     );
   }
 
-  // ボトムナビはタッチ操作なので hover を付けない（タップ後に色が残る）。
   const hover = variant === 'header' ? ' hover:text-ink' : '';
 
   return (
@@ -98,9 +69,6 @@ function LogoutButton({ variant, onClick }: { variant: Variant; onClick: () => v
 }
 
 type Props = {
-  /** PCヘッダーに表示するタイトル。ブラウザのタブ名にも使う。
-   *  スマホ表示ではヘッダーごと隠れるため、スマホ用の見出しが必要なページは
-   *  children 側に置くこと。 */
   title: string;
   active: NavKey;
   children: ReactNode;
@@ -113,7 +81,8 @@ export function AppShell({ title, active, children }: Props) {
     <div className="min-h-screen bg-canvas flex flex-col">
       <Head title={title} />
 
-      {/* PCヘッダー */}
+      <Toaster position="top-center" />
+
       <header className="hidden md:block bg-surface border-b border-line">
         <div className="max-w-5xl mx-auto px-6 py-4 flex justify-between items-center">
           <h1 className="text-xl font-bold text-ink">{title}</h1>
@@ -135,7 +104,6 @@ export function AppShell({ title, active, children }: Props) {
         <div className="max-w-5xl mx-auto px-4 md:px-6 pt-6 w-full">{children}</div>
       </main>
 
-      {/* ボトムナビ（スマホのみ） */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-surface border-t border-line">
         <div className="flex justify-around py-3">
           {NAV_ITEMS.map((item) => (

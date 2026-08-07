@@ -1,9 +1,17 @@
+import { Link, router } from '@inertiajs/react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { router, Link } from '@inertiajs/react';
 import { AuthCard } from '@/components/AuthCard';
-import { FormField } from '@/components/FormField';
-import { SubmitButton } from '@/components/SubmitButton';
+import { Button } from '@/components/ui/button';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 
 type LoginForm = {
   email: string;
@@ -11,23 +19,27 @@ type LoginForm = {
 };
 
 export default function Login() {
-  const {
-    register,
-    handleSubmit,
-    setError,
-    formState: { errors, isSubmitting },
-  } = useForm<LoginForm>();
+  const form = useForm<LoginForm>({ defaultValues: { email: '', password: '' } });
+  const { isSubmitting } = form.formState;
   const [authError, setAuthError] = useState<string | null>(null);
 
   function onSubmit(data: LoginForm) {
     setAuthError(null);
+
     router.post('/app/login', data, {
       onError: (err) => {
         if (err.auth_error) {
           setAuthError(err.auth_error);
-        } else {
-          if (err.email) setError('email', { message: err.email });
-          if (err.password) setError('password', { message: err.password });
+
+          return;
+        }
+
+        if (err.email) {
+          form.setError('email', { message: err.email });
+        }
+
+        if (err.password) {
+          form.setError('password', { message: err.password });
         }
       },
     });
@@ -35,33 +47,53 @@ export default function Login() {
 
   return (
     <AuthCard title="ログイン">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
-          label="メールアドレス"
-          type="email"
-          error={errors.email}
-          {...register('email', { required: 'メールアドレスを入力してください' })}
-        />
-        <FormField
-          label="パスワード"
-          type="password"
-          error={errors.password}
-          {...register('password', {
-            required: 'パスワードを入力してください',
-            minLength: { value: 8, message: 'パスワードは8文字以上で入力してください' },
-          })}
-        />
-        {authError && <p className="text-danger-600 text-sm">{authError}</p>}
-        <SubmitButton isSubmitting={isSubmitting} label="ログイン" loadingLabel="ログイン中..." />
-        <div className="flex justify-between text-sm mt-4">
-          <Link href="/app/forgot-password" className="text-primary-700 hover:underline">
-            パスワードをお忘れですか？
-          </Link>
-          <Link href="/app/register" className="text-primary-700 hover:underline">
-            新規登録はこちら
-          </Link>
-        </div>
-      </form>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <FormField
+            control={form.control}
+            name="email"
+            rules={{ required: 'メールアドレスを入力してください' }}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>メールアドレス</FormLabel>
+                <FormControl>
+                  <Input type="email" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="password"
+            rules={{
+              required: 'パスワードを入力してください',
+              minLength: { value: 8, message: 'パスワードは8文字以上で入力してください' },
+            }}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>パスワード</FormLabel>
+                <FormControl>
+                  <Input type="password" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {authError && <p className="text-danger-600 text-sm">{authError}</p>}
+          <Button type="submit" disabled={isSubmitting} className="w-full">
+            {isSubmitting ? 'ログイン中...' : 'ログイン'}
+          </Button>
+          <div className="flex justify-between text-sm mt-4">
+            <Link href="/app/forgot-password" className="text-primary-700 hover:underline">
+              パスワードをお忘れですか？
+            </Link>
+            <Link href="/app/register" className="text-primary-700 hover:underline">
+              新規登録はこちら
+            </Link>
+          </div>
+        </form>
+      </Form>
     </AuthCard>
   );
 }

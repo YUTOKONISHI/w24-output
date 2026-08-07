@@ -118,7 +118,6 @@ export function ProductTable({
                     >
                       変更
                     </button>
-                    {/* 確認ダイアログが無く押下即削除のため、塗りではなくアウトラインにして誘目性を下げる。 */}
                     <button
                       onClick={() => onDelete(product.id)}
                       className="border border-danger-600 text-danger-600 text-sm px-4 py-1 rounded-full hover:bg-danger-50"

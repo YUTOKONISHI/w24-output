@@ -1,4 +1,7 @@
 @import 'tailwindcss';
+/* shadcn の生成物が使う animate-in / fade-in-0 / zoom-in-95 を供給する。
+ * Tailwind v4 にこれらの組み込みは無く、外すとダイアログの開閉が無音で切り替わる。 */
+@import 'tw-animate-css';
 
 @source '../views';
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
@@ -40,77 +43,43 @@
     --color-info-600: #3f6e8c;
 }
 
-/* react-calendar の既定色をトークンに揃える。
- *
- * Calendar.css は dashboard.tsx から import されるためレイヤー無しで出力され、
- * @layer utilities にある Tailwind ユーティリティに無条件で勝つ。app.css は
- * Calendar.css より先に読まれるので、同詳細度では後勝ちで負ける。
- * そのため全セレクタで、元の規則より詳細度を1段上げてある（.react-calendar の前置、
- * 元が .react-calendar / .react-calendar--* 始まりの場合は .react-calendar の重ね）。
- * セレクタを削る・簡略化すると上書きが効かなくなるので注意。
- */
-.react-calendar.react-calendar {
-    border: 0;
-    font-family: inherit;
-}
-.react-calendar .react-calendar__navigation button:disabled {
-    background-color: var(--color-line);
-}
-.react-calendar .react-calendar__navigation button:enabled:hover,
-.react-calendar .react-calendar__navigation button:enabled:focus {
-    background-color: var(--color-primary-50);
-}
-/* 週末の赤（#d10000）は在庫切れ表示と混同されるため無彩色に落とす。 */
-.react-calendar .react-calendar__month-view__days__day--weekend {
-    color: var(--color-ink-muted);
-}
-.react-calendar .react-calendar__month-view__days__day--neighboringMonth,
-.react-calendar .react-calendar__month-view__days__day--neighboringMonth:disabled {
-    color: var(--color-disabled);
-}
-/* 無効タイルの塗り。canvas(#FBFAF7) はカードの白地に対して 1.02:1 でほぼ見えず、
- * 元の #f0f0f0 が持っていた「面で無効を示す」情報が失われるため line を使う（白に対して 1.28:1）。
- * 無効コントロールなので SC 1.4.3 の対象外。 */
-.react-calendar .react-calendar__tile:disabled {
-    background-color: var(--color-line);
-    color: var(--color-disabled);
-}
-.react-calendar .react-calendar__tile:enabled:hover,
-.react-calendar .react-calendar__tile:enabled:focus {
-    background-color: var(--color-primary-50);
-}
-/* 当日。既定は蛍光イエロー #ffff76 */
-.react-calendar .react-calendar__tile--now,
-.react-calendar .react-calendar__tile--now:enabled:hover,
-.react-calendar .react-calendar__tile--now:enabled:focus {
-    background: var(--color-warning-50);
-}
-/* 選択タイル。購入予定日の primary-600 と競合しないよう淡くする。 */
-.react-calendar .react-calendar__tile--active,
-.react-calendar .react-calendar__tile--active:enabled:hover,
-.react-calendar .react-calendar__tile--active:enabled:focus,
-.react-calendar .react-calendar__tile--hasActive,
-.react-calendar .react-calendar__tile--hasActive:enabled:hover,
-.react-calendar .react-calendar__tile--hasActive:enabled:focus {
-    background: var(--color-primary-100);
-    color: var(--color-ink);
-}
-/* 元の規則と同じ .react-calendar--selectRange .react-calendar__tile--hover は (0,2,0) で
- * 引き分け＝後勝ちで負ける。.react-calendar を重ねて (0,3,0) にする。 */
-.react-calendar.react-calendar--selectRange .react-calendar__tile--hover {
-    background-color: var(--color-primary-50);
+:root {
+    /* shadcn/ui の角丸の基準。ここから --radius-sm/md/lg/xl が導出され、
+     * Tailwind 組み込みの rounded-sm/md/lg/xl を上書きする。
+     * 0.5rem にすると導出値が Tailwind 既定と一致するため（sm 4px / md 6px / lg 8px / xl 12px）、
+     * 既存の rounded-lg（カード11箇所）の見た目が変わらない。値を動かすとそこが一斉に変わる。 */
+    --radius: 0.5rem;
 }
 
-/* 購入予定日。tileClassName（dashboard.tsx）から付与される。
- * Tailwind ユーティリティでは .react-calendar__tile { background: none } に負けるため専用クラスにする。
+/* shadcn/ui のトークン。値は上の @theme を指すだけで、ここでは色を定義しない。
+ * 配色の出どころを1つに保つため、shadcn の既定値を貼り付けないこと。
+ * `shadcn add` が色定義を書き足すことがあるので、実行後は必ず差分を確認する。
  *
- * :enabled:hover / :enabled:focus を必ず併記すること。素の状態だけだと (0,3,0) となり、
- * .react-calendar .react-calendar__tile:enabled:hover (0,4,0) に負けて
- * 背景だけが primary-50 に戻り、白文字が残って日付が読めなくなる。 */
-.react-calendar .react-calendar__tile.is-purchase-date,
-.react-calendar .react-calendar__tile.is-purchase-date:enabled:hover,
-.react-calendar .react-calendar__tile.is-purchase-date:enabled:focus {
-    background: var(--color-primary-600);
-    color: #fff;
-    border-radius: 9999px;
+ * --input を --border と同じ --color-line にしてはいけない。shadcn は入力欄の枠に
+ * --input を使い、--color-line は装飾罫線用で白地に 1.28:1 しかない。
+ * 操作可能な要素の境界は --color-line-strong（3.43:1）を使う。 */
+@theme inline {
+    --color-background: var(--color-canvas);
+    --color-foreground: var(--color-ink);
+    --color-card: var(--color-surface);
+    --color-card-foreground: var(--color-ink);
+    --color-popover: var(--color-surface);
+    --color-popover-foreground: var(--color-ink);
+    --color-primary: var(--color-primary-600);
+    --color-primary-foreground: #ffffff;
+    --color-secondary: var(--color-primary-100);
+    --color-secondary-foreground: var(--color-ink);
+    --color-muted: var(--color-line);
+    --color-muted-foreground: var(--color-ink-muted);
+    --color-accent: var(--color-primary-50);
+    --color-accent-foreground: var(--color-ink);
+    --color-destructive: var(--color-danger-600);
+    --color-border: var(--color-line);
+    --color-input: var(--color-line-strong);
+    --color-ring: var(--color-primary-600);
+
+    --radius-sm: calc(var(--radius) - 4px);
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) + 4px);
 }

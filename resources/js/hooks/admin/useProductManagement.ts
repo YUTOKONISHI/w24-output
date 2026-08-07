@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
+import { toast } from 'sonner';
 import { NewProduct, Product } from '@/types/admin';
 
 export function useProductManagement() {
@@ -12,7 +13,7 @@ export function useProductManagement() {
     router.delete(`/admin/products/${id}`, {
       onSuccess: () => { },
       onError: () => {
-        alert('商品削除に失敗しました');
+        toast.error('商品削除に失敗しました');
       },
     });
   }
@@ -35,7 +36,7 @@ export function useProductManagement() {
         setEditingProduct(null);
       },
       onError: () => {
-        alert('商品情更新に失敗しました');
+        toast.error('商品情報の更新に失敗しました');
       },
     });
   }
@@ -51,7 +52,7 @@ export function useProductManagement() {
         setShowNewRow(false);
       },
       onError: () => {
-        alert('商品登録に失敗しました');
+        toast.error('商品登録に失敗しました');
       },
     });
     setNewProduct({ name: '', category_id: 0 });

@@ -23,10 +23,8 @@ export default function Notifications({ notifications }: Props) {
 
   return (
     <AppShell title="Push通知" active="notifications">
-      {/* スマホタイトル */}
       <h1 className="md:hidden text-xl font-bold text-ink text-center mb-6">Push通知</h1>
 
-      {/* 通知設定 */}
       <div className="bg-surface rounded-lg border border-line p-4 mb-6">
         <h2 className="text-sm font-bold text-ink mb-3">通知設定</h2>
         <div className="flex justify-between items-center">
@@ -42,7 +40,6 @@ export default function Notifications({ notifications }: Props) {
         </div>
       </div>
 
-      {/* 通知履歴 */}
       <div>
         <h2 className="text-sm font-bold text-ink mb-3">通知履歴</h2>
         {notifications.length === 0 ? (

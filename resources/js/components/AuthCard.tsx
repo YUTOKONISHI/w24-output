@@ -1,4 +1,5 @@
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
+import { Toaster } from '@/components/ui/sonner';
 
 type Props = {
   title: string;
@@ -9,6 +10,7 @@ type Props = {
 export function AuthCard({ title, description, children }: Props) {
   return (
     <div className="min-h-screen bg-canvas flex items-center justify-center">
+      <Toaster position="top-center" />
       <div className="bg-surface p-8 rounded-lg shadow w-full max-w-md">
         <h1 className={`text-2xl font-bold text-ink ${description ? 'mb-2' : 'mb-6'}`}>
           {title}

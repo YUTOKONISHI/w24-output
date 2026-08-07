@@ -1,8 +1,16 @@
-import { useForm } from 'react-hook-form';
 import { router } from '@inertiajs/react';
+import { useForm } from 'react-hook-form';
 import { AuthCard } from '@/components/AuthCard';
-import { FormField } from '@/components/FormField';
-import { SubmitButton } from '@/components/SubmitButton';
+import { Button } from '@/components/ui/button';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 
 type ResetPasswordForm = {
   email: string;
@@ -16,58 +24,81 @@ type Props = {
 };
 
 export default function ResetPassword({ token, email }: Props) {
-  const {
-    register,
-    handleSubmit,
-    setError,
-    watch,
-    formState: { errors, isSubmitting },
-  } = useForm<ResetPasswordForm>({
-    defaultValues: { email },
+  const form = useForm<ResetPasswordForm>({
+    defaultValues: { email, password: '', password_confirmation: '' },
   });
+  const { isSubmitting } = form.formState;
 
   function onSubmit(data: ResetPasswordForm) {
     router.post('/app/reset-password', { ...data, token }, {
       onError: (err) => {
-        if (err.email) setError('email', { message: err.email });
-        if (err.password) setError('password', { message: err.password });
+        (['email', 'password'] as const).forEach((field) => {
+          if (err[field]) {
+            form.setError(field, { message: err[field] });
+          }
+        });
       },
     });
   }
 
   return (
     <AuthCard title="新しいパスワードを設定">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
-          label="メールアドレス"
-          type="email"
-          error={errors.email}
-          {...register('email', { required: 'メールアドレスを入力してください' })}
-        />
-        <FormField
-          label="新しいパスワード"
-          type="password"
-          error={errors.password}
-          {...register('password', {
-            required: 'パスワードを入力してください',
-            minLength: { value: 8, message: 'パスワードは8文字以上で入力してください' },
-          })}
-        />
-        <FormField
-          label="新しいパスワード確認"
-          type="password"
-          error={errors.password_confirmation}
-          {...register('password_confirmation', {
-            required: 'パスワード確認を入力してください',
-            validate: (value) => value === watch('password') || 'パスワードが一致しません',
-          })}
-        />
-        <SubmitButton
-          isSubmitting={isSubmitting}
-          label="パスワードを更新"
-          loadingLabel="更新中..."
-        />
-      </form>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <FormField
+            control={form.control}
+            name="email"
+            rules={{ required: 'メールアドレスを入力してください' }}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>メールアドレス</FormLabel>
+                <FormControl>
+                  <Input type="email" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="password"
+            rules={{
+              required: 'パスワードを入力してください',
+              minLength: { value: 8, message: 'パスワードは8文字以上で入力してください' },
+            }}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>新しいパスワード</FormLabel>
+                <FormControl>
+                  <Input type="password" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="password_confirmation"
+            rules={{
+              required: 'パスワード確認を入力してください',
+              validate: (value) =>
+                value === form.getValues('password') || 'パスワードが一致しません',
+            }}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>新しいパスワード確認</FormLabel>
+                <FormControl>
+                  <Input type="password" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Button type="submit" disabled={isSubmitting} className="w-full">
+            {isSubmitting ? '更新中...' : 'パスワードを更新'}
+          </Button>
+        </form>
+      </Form>
     </AuthCard>
   );
 }

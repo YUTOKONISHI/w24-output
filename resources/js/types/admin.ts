@@ -8,7 +8,7 @@ export type Product = {
   name: string;
   category_id: number;
   category: Category;
-  default_consumption_interval_days: number;
+  default_consumption_interval_days: number | null;
 };
 
 export type NewProduct = {

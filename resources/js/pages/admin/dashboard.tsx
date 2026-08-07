@@ -2,6 +2,7 @@ import { AdminHeader } from '@/components/admin/AdminHeader';
 import { CategorySidebar } from '@/components/admin/CategorySidebar';
 import { PasswordChangeDialog } from '@/components/admin/PasswordChangeDialog';
 import { ProductTable } from '@/components/admin/ProductTable';
+import { Toaster } from '@/components/ui/sonner';
 import { useAdminDashboard } from '@/hooks/admin/useAdminDashboard';
 import { Category, Product } from '@/types/admin';
 
@@ -34,6 +35,7 @@ export default function AdminDashboard({ products, categories }: Props) {
 
   return (
     <div className="min-h-screen bg-canvas">
+      <Toaster position="top-center" />
       <AdminHeader
         onPasswordChangeClick={openPasswordDialog}
         onLogout={handleLogout}

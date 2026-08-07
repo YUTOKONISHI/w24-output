@@ -1,5 +1,16 @@
-import { useState } from 'react';
 import { router } from '@inertiajs/react';
+import { useState } from 'react';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 type Props = {
   open: boolean;
@@ -10,10 +21,13 @@ export function PasswordChangeDialog({ open, onClose }: Props) {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  if (!open) return null;
-
   function handleSubmit() {
-    if (newPassword !== confirmPassword) return;
+    if (newPassword !== confirmPassword) {
+      toast.error('パスワードが一致しません');
+
+      return;
+    }
+
     router.post('/admin/password', {
       password: newPassword,
       password_confirmation: confirmPassword,
@@ -21,58 +35,50 @@ export function PasswordChangeDialog({ open, onClose }: Props) {
       onSuccess: () => {
         setNewPassword('');
         setConfirmPassword('');
+        toast.success('パスワードを変更しました');
         onClose();
       },
       onError: () => {
-        alert('パスワード変更に失敗しました');
+        toast.error('パスワード変更に失敗しました');
       },
     });
-    onClose();
   }
 
   return (
-    <div className="fixed inset-0 bg-ink/20 flex items-center justify-center z-50">
-      <div className="bg-surface rounded-lg shadow-lg p-6 w-full max-w-sm">
-        <h2 className="text-lg font-bold text-ink mb-4">パスワード変更</h2>
+    <Dialog open={open} onOpenChange={(next) => !next && onClose()}>
+      <DialogContent className="sm:max-w-sm">
+        <DialogHeader>
+          <DialogTitle>パスワード変更</DialogTitle>
+        </DialogHeader>
         <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-ink mb-1">
-              新しいパスワード
-            </label>
-            <input
+          <div className="space-y-1">
+            <Label htmlFor="new-password">新しいパスワード</Label>
+            <Input
+              id="new-password"
               type="password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full border border-line-strong rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-600 text-sm"
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-ink mb-1">
-              パスワード確認
-            </label>
-            <input
+          <div className="space-y-1">
+            <Label htmlFor="confirm-password">パスワード確認</Label>
+            <Input
+              id="confirm-password"
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full border border-line-strong rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-600 text-sm"
             />
           </div>
         </div>
-        <div className="flex justify-end gap-2 mt-6">
-          <button
-            onClick={onClose}
-            className="text-sm text-ink-muted hover:text-ink px-4 py-2"
-          >
+        <DialogFooter>
+          <Button type="button" variant="ghost" onClick={onClose}>
             キャンセル
-          </button>
-          <button
-            onClick={handleSubmit}
-            className="bg-primary-600 text-white text-sm px-4 py-2 rounded-full hover:bg-primary-700"
-          >
+          </Button>
+          <Button type="button" onClick={handleSubmit}>
             変更する
-          </button>
-        </div>
-      </div>
-    </div>
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
