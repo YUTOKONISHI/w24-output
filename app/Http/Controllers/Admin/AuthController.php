@@ -10,20 +10,27 @@ use Inertia\Inertia;
 
 class AuthController extends Controller
 {
+    /**
+     * ログイン画面を表示する
+     */
     public function showLogin()
     {
         return Inertia::render('admin/login');
     }
 
+    /**
+     * ログインする
+     */
     public function login(Request $request)
     {
         $credentials = $request->validate([
             'name' => ['required'],
-            'password' => ['required'],         
+            'password' => ['required'],
         ]);
 
-        if(Auth::guard('admin')->attempt($credentials)) {
+        if (Auth::guard('admin')->attempt($credentials)) {
             $request->session()->regenerate();
+
             return redirect()->intended('/admin/dashboard');
         }
 
@@ -32,14 +39,21 @@ class AuthController extends Controller
         ]);
     }
 
+    /**
+     * ログアウトする
+     */
     public function logout(Request $request)
     {
         Auth::guard('admin')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect('/admin/login');        
+
+        return redirect('/admin/login');
     }
 
+    /**
+     * 管理者パスワードを更新する
+     */
     public function updateAdminPassword(Request $request)
     {
         $request->validate([

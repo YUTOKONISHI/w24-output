@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Category, Product } from '@/types/admin';
+import type { Category, Product } from '@/types/admin';
 
 export function useCategoryFilter(categories: Category[], products: Product[]) {
   const [selectedCategories, setSelectedCategories] = useState<number[]>(

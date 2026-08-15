@@ -15,18 +15,19 @@ class UpdateUserPassword implements UpdatesUserPasswords
     /**
      * Validate and update the user's password.
      *
-     * @param  array<string, string>  $input
+     * @param  array<string, mixed>  $input
      *
      * @throws ValidationException
      */
     public function update(User $user, array $input): void
     {
+        // エラーバッグは既定のものを使う。理由は UpdateUserProfileInformation と同じ。
         Validator::make($input, [
             'current_password' => ['required', 'string', 'current_password:web'],
             'password' => $this->passwordRules(),
         ], [
-            'current_password.current_password' => __('The provided password does not match your current password.'),
-        ])->validateWithBag('updatePassword');
+            'current_password.current_password' => '現在のパスワードが違います。',
+        ])->validate();
 
         $user->forceFill([
             'password' => Hash::make($input['password']),

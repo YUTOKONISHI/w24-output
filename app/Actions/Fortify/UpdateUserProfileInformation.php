@@ -3,9 +3,7 @@
 namespace App\Actions\Fortify;
 
 use App\Models\User;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Contracts\UpdatesUserProfileInformation;
 
@@ -14,48 +12,26 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
     /**
      * Validate and update the given user's profile information.
      *
-     * @param  array<string, string>  $input
+     * メールアドレスは変更対象に含めない（要件の「設定」はユーザ名・パスワード・世帯人数）。
+     * 呼び出し口は ProfileController のみで、Fortify のルートは無効にしてある。
+     *
+     * @param  array<string, mixed>  $input
      *
      * @throws ValidationException
      */
     public function update(User $user, array $input): void
     {
+        // エラーバッグは既定のものを使う。画面が1フォームなので、
+        // 名前付きバッグにすると Inertia 側で errors が入れ子になり、
+        // フロントの項目名と対応させるのに余計な変換が要る。
         Validator::make($input, [
             'name' => ['required', 'string', 'max:255'],
+            'household_size' => ['nullable', 'integer', 'min:1'],
+        ])->validate();
 
-            'email' => [
-                'required',
-                'string',
-                'email',
-                'max:255',
-                Rule::unique('users')->ignore($user->id),
-            ],
-        ])->validateWithBag('updateProfileInformation');
-
-        if ($input['email'] !== $user->email &&
-            $user instanceof MustVerifyEmail) {
-            $this->updateVerifiedUser($user, $input);
-        } else {
-            $user->forceFill([
-                'name' => $input['name'],
-                'email' => $input['email'],
-            ])->save();
-        }
-    }
-
-    /**
-     * Update the given verified user's profile information.
-     *
-     * @param  array<string, string>  $input
-     */
-    protected function updateVerifiedUser(User $user, array $input): void
-    {
         $user->forceFill([
             'name' => $input['name'],
-            'email' => $input['email'],
-            'email_verified_at' => null,
+            'household_size' => $input['household_size'] ?? null,
         ])->save();
-
-        $user->sendEmailVerificationNotification();
     }
 }

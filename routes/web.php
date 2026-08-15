@@ -3,47 +3,55 @@
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\NotificationLogController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\StockController;
 use Illuminate\Support\Facades\Route;
 
-Route::redirect('/', '/app/login');
+Route::redirect('/', '/app/welcome');
 
-// 一般ユーザー画面はすべて /app 配下に集約する。
-// サービスワーカーのスコープを /app/ に閉じることで、管理画面 /admin/* を制御対象から外すため。
-// Fortify のログイン等も config/fortify.php の prefix で /app 配下に寄せている。
-// ここから外に出すと、その画面だけ PWA のウィンドウから抜ける。
 Route::prefix('app')->group(function () {
-  Route::inertia('/forgot-password', 'auth/forgot-password')->name('forgot-password');
+    Route::inertia('/welcome', 'welcome')->name('welcome');
 
-  Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', [StockController::class, 'index'])->name('dashboard');
+    Route::inertia('/forgot-password', 'auth/forgot-password')->name('forgot-password');
 
-    Route::post('/stocks', [StockController::class, 'store'])->name('stocks.store');
-    Route::put('/stocks/{stock}', [StockController::class, 'update'])->name('stocks.update');
-    Route::delete('/stocks/{stock}', [StockController::class, 'destroy'])->name('stocks.destroy');
+    Route::middleware('auth')->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    Route::get('/notifications', [NotificationLogController::class, 'index'])->name('notifications.index');
-    Route::post('/notifications', [NotificationLogController::class, 'store'])->name('notifications.store');
-    Route::delete('/notifications/{notificationLog}', [NotificationLogController::class, 'destroy'])->name('notifications.destroy');
-  });
+        Route::get('/stocks', [StockController::class, 'index'])->name('stocks.index');
+        Route::get('/stocks/create', [StockController::class, 'create'])->name('stocks.create');
+        Route::get('/stocks/{stock}/edit', [StockController::class, 'edit'])->name('stocks.edit');
+        Route::post('/stocks', [StockController::class, 'store'])->name('stocks.store');
+        Route::put('/stocks/{stock}', [StockController::class, 'update'])->name('stocks.update');
+        Route::delete('/stocks/{stock}', [StockController::class, 'destroy'])->name('stocks.destroy');
+
+        Route::get('/notifications', [NotificationLogController::class, 'index'])->name('notifications.index');
+        Route::post('/notifications', [NotificationLogController::class, 'store'])->name('notifications.store');
+        Route::delete('/notifications/{notificationLog}', [NotificationLogController::class, 'destroy'])->name('notifications.destroy');
+
+        Route::inertia('/settings', 'settings/index')->name('settings.index');
+        Route::get('/settings/profile', [ProfileController::class, 'index'])->name('profile.edit');
+        Route::put('/settings/profile', [ProfileController::class, 'update'])->name('profile.update');
+
+    });
 });
 
 Route::prefix('admin')->name('admin.')->group(function () {
-  Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-  Route::post('/login', [AuthController::class, 'login']);
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [AuthController::class, 'login']);
 
-  Route::middleware('auth:admin')->group(function () {
-    Route::get('/dashboard', [ProductController::class, 'index'])->name('dashboard');
-    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-    Route::post('/password', [AuthController::class, 'updateAdminPassword'])->name('admin-password');
+    Route::middleware('auth:admin')->group(function () {
+        Route::get('/dashboard', [ProductController::class, 'index'])->name('dashboard');
+        Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+        Route::post('/password', [AuthController::class, 'updateAdminPassword'])->name('admin-password');
 
-    Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store');
-    Route::put('/categories/{category}', [CategoryController::class, 'update'])->name('categories.update');
-    Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
+        Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store');
+        Route::put('/categories/{category}', [CategoryController::class, 'update'])->name('categories.update');
+        Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
 
-    Route::post('/products', [ProductController::class, 'store'])->name('products.store');
-    Route::put('/products/{product}', [ProductController::class, 'update'])->name('products.update');
-    Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
-  });
+        Route::post('/products', [ProductController::class, 'store'])->name('products.store');
+        Route::put('/products/{product}', [ProductController::class, 'update'])->name('products.update');
+        Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
+    });
 });

@@ -1,7 +1,7 @@
 <?php
 
-use App\Models\User;
 use App\Models\Admin;
+use App\Models\User;
 
 return [
 
@@ -45,7 +45,7 @@ return [
         ],
         'admin' => [
             'driver' => 'session',
-            'provider' => 'admins',            
+            'provider' => 'admins',
         ],
     ],
 

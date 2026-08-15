@@ -4,7 +4,7 @@ import { PasswordChangeDialog } from '@/components/admin/PasswordChangeDialog';
 import { ProductTable } from '@/components/admin/ProductTable';
 import { Toaster } from '@/components/ui/sonner';
 import { useAdminDashboard } from '@/hooks/admin/useAdminDashboard';
-import { Category, Product } from '@/types/admin';
+import type { Category, Product } from '@/types/admin';
 
 type Props = {
   products: Product[];

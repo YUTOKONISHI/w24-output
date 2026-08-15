@@ -1,4 +1,4 @@
-import { Category, Product } from '@/types/admin';
+import type { Category, Product } from '@/types/admin';
 import { useAdminAuth } from './useAdminAuth';
 import { useCategoryFilter } from './useCategoryFilter';
 import { usePasswordDialog } from './usePasswordDialog';

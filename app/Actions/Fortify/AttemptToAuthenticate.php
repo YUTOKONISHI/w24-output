@@ -12,7 +12,7 @@ class AttemptToAuthenticate extends BaseAttemptToAuthenticate
         $this->limiter->increment($request);
 
         throw ValidationException::withMessages([
-          'auth_error' => ['名前またはパスワードが正しくありません'],
+            'auth_error' => ['名前またはパスワードが正しくありません'],
         ]);
     }
 }

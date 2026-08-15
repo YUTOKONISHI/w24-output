@@ -1,4 +1,4 @@
-import { Category } from '@/types/admin';
+import type { Category } from '@/types/admin';
 
 type Props = {
   categories: Category[];
