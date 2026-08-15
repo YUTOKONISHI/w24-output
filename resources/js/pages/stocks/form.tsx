@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { AppShell } from '@/components/layout/AppShell';
 import { Button } from '@/components/ui/button';
 import {
@@ -21,17 +21,17 @@ import {
 } from '@/components/ui/select';
 import { stockFormDefaults, useStockForm } from '@/hooks/useStockForm';
 import type { StockFormValues } from '@/hooks/useStockForm';
-import type { Product, Stock } from '@/types';
+import type { StockFormProduct, Stock } from '@/types';
 
 type Props = {
-  products: Product[];
+  products: StockFormProduct[];
   stock: Stock | null;
 };
 
 export default function StockForm({ products, stock }: Props) {
   const form = useForm<StockFormValues>({ defaultValues: stockFormDefaults(stock) });
   const { isSubmitting } = form.formState;
-  const categoryId = form.watch('category_id');
+  const categoryId = useWatch({ control: form.control, name: 'category_id' });
   const {
     isEdit,
     categories,

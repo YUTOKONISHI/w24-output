@@ -1,7 +1,7 @@
 import { router } from '@inertiajs/react';
 import { useMemo, useRef } from 'react';
 import type { UseFormSetError, UseFormSetValue } from 'react-hook-form';
-import type { Category, Product, Stock } from '@/types';
+import type { Category, Stock, StockFormProduct } from '@/types';
 
 export type StockFormValues = {
   category_id: string;
@@ -13,7 +13,7 @@ export type StockFormValues = {
 
 type Params = {
   stock: Stock | null;
-  products: Product[];
+  products: StockFormProduct[];
   categoryId: string;
   setValue: UseFormSetValue<StockFormValues>;
   setError: UseFormSetError<StockFormValues>;
@@ -84,7 +84,7 @@ export function useStockForm({ stock, products, categoryId, setValue, setError }
     }
 
     const product = products.find((candidate) => String(candidate.id) === productId);
-    const days = product?.default_consumption_interval_days;
+    const days = product?.initial_consumption_interval_days;
 
     setValue('consumption_interval_days', days === null || days === undefined ? '' : String(days));
   }

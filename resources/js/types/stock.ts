@@ -1,5 +1,7 @@
 import type { Product } from './admin';
 
+export type StockFormProduct = Product & { initial_consumption_interval_days: number | null };
+
 export type Stock = {
   id: number;
   product: Product;
