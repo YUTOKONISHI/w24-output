@@ -1,10 +1,12 @@
 import { Link } from '@inertiajs/react';
 import { ChevronRight, Package, User } from 'lucide-react';
-import { AppShell } from '@/components/layout/AppShell';
+import profile from '@/routes/profile';
+import stocks from '@/routes/stocks';
+import { AppShell } from '@/shared/layouts/AppShell';
 
 const MENU_ITEMS = [
-  { href: '/app/settings/profile', icon: User, label: '個人情報の変更' },
-  { href: '/app/stocks', icon: Package, label: 'ストック管理' },
+  { href: profile.edit.url(), icon: User, label: '個人情報の変更' },
+  { href: stocks.index.url(), icon: Package, label: 'ストック管理' },
 ] as const;
 
 export default function Settings() {

@@ -1,8 +1,9 @@
 import { Link, router, usePage } from '@inertiajs/react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import { AppShell } from '@/components/layout/AppShell';
-import { Button } from '@/components/ui/button';
+import profile from '@/routes/profile';
+import settings from '@/routes/settings';
+import { Button } from '@/shared/components/ui/button';
 import {
   Form,
   FormControl,
@@ -11,8 +12,9 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+} from '@/shared/components/ui/form';
+import { Input } from '@/shared/components/ui/input';
+import { AppShell } from '@/shared/layouts/AppShell';
 
 type ProfileForm = {
   name: string;
@@ -56,7 +58,7 @@ export default function Profile() {
       payload.password_confirmation = data.password_confirmation;
     }
 
-    router.put('/app/settings/profile', payload, {
+    router.put(profile.update.url(), payload, {
       onSuccess: () => {
         toast.success('保存しました');
 
@@ -177,7 +179,7 @@ export default function Profile() {
 
             <div className="space-y-3 pt-2">
               <Button asChild variant="secondary" className="w-full">
-                <Link href="/app/settings">キャンセル</Link>
+                <Link href={settings.index.url()}>キャンセル</Link>
               </Button>
               <Button type="submit" disabled={isSubmitting} className="w-full">
                 {isSubmitting ? '保存中...' : '保存'}

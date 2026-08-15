@@ -1,8 +1,9 @@
 import { router } from '@inertiajs/react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { AuthCard } from '@/components/AuthCard';
-import { Button } from '@/components/ui/button';
+import admin from '@/routes/admin';
+import { AuthCard } from '@/shared/components/AuthCard';
+import { Button } from '@/shared/components/ui/button';
 import {
   Form,
   FormControl,
@@ -10,8 +11,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+} from '@/shared/components/ui/form';
+import { Input } from '@/shared/components/ui/input';
 
 type LoginForm = {
   name: string;
@@ -26,7 +27,9 @@ export default function AdminLogin() {
   function onSubmit(data: LoginForm) {
     setAuthError(null);
 
-    router.post('/admin/login', data, {
+    // routes/web.php の POST /admin/login には名前が付いていないため Wayfinder が
+    // 生成しない。URL の同じ GET 側の定義を使う。
+    router.post(admin.login.url(), data, {
       onError: (err) => {
         if (err.auth_error) {
           setAuthError(err.auth_error);

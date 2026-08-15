@@ -1,8 +1,10 @@
 import { ja } from 'date-fns/locale';
-import { CategoryIcon } from '@/components/CategoryIcon';
-import { AppShell } from '@/components/layout/AppShell';
-import { Calendar } from '@/components/ui/calendar';
-import type { Product, Stock } from '@/types';
+import type { Stock } from '@/features/stock/types';
+import { CategoryIcon } from '@/shared/components/CategoryIcon';
+import { Calendar } from '@/shared/components/ui/calendar';
+import { AppShell } from '@/shared/layouts/AppShell';
+import { formatDate, formatDateWithWeekday, isToday, toDate } from '@/shared/lib/date';
+import type { Product } from '@/shared/types/catalog';
 
 type Props = {
   stocks: Stock[];
@@ -24,28 +26,14 @@ const CALENDAR_MODIFIER_CLASS_NAMES = {
 };
 
 export default function Dashboard({ stocks }: Props) {
-  const purchaseDates = stocks.map((s) => new Date(s.next_purchase_date));
+  const purchaseDates = stocks.map((stock) => toDate(stock.next_purchase_date));
 
-  const nextPurchaseDate = purchaseDates.length > 0
-    ? purchaseDates.reduce((a, b) => (a < b ? a : b))
+  /** next_purchase_date は YYYY-MM-DD なので、文字列のまま比べれば日付順になる。 */
+  const nextPurchaseDate = stocks.length > 0
+    ? stocks.map((stock) => stock.next_purchase_date).reduce((a, b) => (a < b ? a : b))
     : null;
 
-  const formatDate = (date: Date) => {
-    return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}(${['日', '月', '火', '水', '木', '金', '土'][date.getDay()]})`;
-  };
-
-  const formatShortDate = (value: string) => value.slice(0, 10).replace(/-/g, '/');
-
-  const todayStocks = stocks.filter((s) => {
-    const d = new Date(s.next_purchase_date);
-    const today = new Date();
-
-    return (
-      d.getFullYear() === today.getFullYear() &&
-      d.getMonth() === today.getMonth() &&
-      d.getDate() === today.getDate()
-    );
-  });
+  const todayStocks = stocks.filter((stock) => isToday(stock.next_purchase_date));
 
   return (
     <AppShell title="ダッシュボード" active="dashboard">
@@ -53,7 +41,7 @@ export default function Dashboard({ stocks }: Props) {
         <div className="bg-surface rounded-lg border border-line p-5">
           <p className="text-sm text-ink-muted">次回購入日</p>
           <p className="text-lg font-bold text-ink mt-1">
-            {nextPurchaseDate ? formatDate(nextPurchaseDate) : '未設定'}
+            {nextPurchaseDate ? formatDateWithWeekday(nextPurchaseDate) : '未設定'}
           </p>
         </div>
         <div className="bg-surface rounded-lg border border-line p-5">
@@ -69,7 +57,7 @@ export default function Dashboard({ stocks }: Props) {
       <div className="md:hidden mb-6">
         <p className="text-sm text-ink-muted">次回購入日</p>
         <p className="text-3xl font-bold text-ink mt-1">
-          {nextPurchaseDate ? formatDate(nextPurchaseDate) : '未設定'}
+          {nextPurchaseDate ? formatDateWithWeekday(nextPurchaseDate) : '未設定'}
         </p>
       </div>
 
@@ -105,7 +93,7 @@ export default function Dashboard({ stocks }: Props) {
                   />
                   <p className="text-sm font-medium text-ink">{stock.product.name}</p>
                   <p className="text-xs text-ink-muted mt-2">
-                    次回 {formatShortDate(stock.next_purchase_date)}
+                    次回 {formatDate(stock.next_purchase_date)}
                   </p>
                 </div>
               ))}

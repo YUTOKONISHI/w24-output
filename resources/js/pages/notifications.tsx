@@ -1,13 +1,7 @@
 import { useState } from 'react';
-import { AppShell } from '@/components/layout/AppShell';
-
-type NotificationLog = {
-  id: number;
-  title: string;
-  description: string;
-  status: string;
-  created_at: string;
-}
+import type { NotificationLog } from '@/features/notification/types';
+import { AppShell } from '@/shared/layouts/AppShell';
+import { formatDate } from '@/shared/lib/date';
 
 type Props = {
   notifications: NotificationLog[];
@@ -15,12 +9,6 @@ type Props = {
 
 export default function Notifications({ notifications }: Props) {
   const [enabled, setEnabled] = useState(true);
-
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-
-    return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}`;
-  }
 
   return (
     <AppShell title="Push通知" active="notifications">

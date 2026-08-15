@@ -1,7 +1,9 @@
-import { Link, router } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import { useForm } from 'react-hook-form';
-import { AuthCard } from '@/components/AuthCard';
-import { Button } from '@/components/ui/button';
+import { register } from '@/features/auth/api';
+import { login } from '@/routes';
+import { AuthCard } from '@/shared/components/AuthCard';
+import { Button } from '@/shared/components/ui/button';
 import {
   Form,
   FormControl,
@@ -9,8 +11,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+} from '@/shared/components/ui/form';
+import { Input } from '@/shared/components/ui/input';
 
 type RegisterForm = {
   name: string;
@@ -26,7 +28,7 @@ export default function Register() {
   const { isSubmitting } = form.formState;
 
   function onSubmit(data: RegisterForm) {
-    router.post('/app/register', data, {
+    register(data, {
       onError: (err) => {
         (['name', 'email', 'password'] as const).forEach((field) => {
           if (err[field]) {
@@ -108,7 +110,7 @@ export default function Register() {
             {isSubmitting ? '登録中...' : '新規登録'}
           </Button>
           <div className="flex justify-between text-sm mt-4">
-            <Link href="/app/login" className="text-primary-700 hover:underline">
+            <Link href={login.url()} className="text-primary-700 hover:underline">
               ログインはこちら
             </Link>
           </div>

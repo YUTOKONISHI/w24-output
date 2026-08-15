@@ -1,7 +1,8 @@
 import { Link } from '@inertiajs/react';
-import { useForm, useWatch } from 'react-hook-form';
-import { AppShell } from '@/components/layout/AppShell';
-import { Button } from '@/components/ui/button';
+import { useStockForm } from '@/features/stock/hooks/useStockForm';
+import type { Stock, StockFormProduct } from '@/features/stock/types';
+import stockRoutes from '@/routes/stocks';
+import { Button } from '@/shared/components/ui/button';
 import {
   Form,
   FormControl,
@@ -10,18 +11,16 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+} from '@/shared/components/ui/form';
+import { Input } from '@/shared/components/ui/input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { stockFormDefaults, useStockForm } from '@/hooks/useStockForm';
-import type { StockFormValues } from '@/hooks/useStockForm';
-import type { StockFormProduct, Stock } from '@/types';
+} from '@/shared/components/ui/select';
+import { AppShell } from '@/shared/layouts/AppShell';
 
 type Props = {
   products: StockFormProduct[];
@@ -29,11 +28,10 @@ type Props = {
 };
 
 export default function StockForm({ products, stock }: Props) {
-  const form = useForm<StockFormValues>({ defaultValues: stockFormDefaults(stock) });
-  const { isSubmitting } = form.formState;
-  const categoryId = useWatch({ control: form.control, name: 'category_id' });
   const {
+    form,
     isEdit,
+    hasCategory,
     categories,
     visibleProducts,
     markIntervalEdited,
@@ -41,13 +39,8 @@ export default function StockForm({ products, stock }: Props) {
     handleProductChange,
     submit,
     remove,
-  } = useStockForm({
-    stock,
-    products,
-    categoryId,
-    setValue: form.setValue,
-    setError: form.setError,
-  });
+  } = useStockForm({ stock, products });
+  const { isSubmitting } = form.formState;
   const title = isEdit ? 'ストック設定' : 'ストック追加';
 
   return (
@@ -103,13 +96,13 @@ export default function StockForm({ products, stock }: Props) {
                       field.onChange(value);
                       handleProductChange(value);
                     }}
-                    disabled={isEdit || categoryId === ''}
+                    disabled={isEdit || !hasCategory}
                   >
                     <FormControl>
                       <SelectTrigger className="w-full">
                         <SelectValue
                           placeholder={
-                            categoryId === '' ? '先にカテゴリを選択してください' : '選択してください'
+                            hasCategory ? '選択してください' : '先にカテゴリを選択してください'
                           }
                         />
                       </SelectTrigger>
@@ -194,7 +187,7 @@ export default function StockForm({ products, stock }: Props) {
 
             <div className="space-y-3 pt-2">
               <Button asChild variant="secondary" className="w-full">
-                <Link href="/app/stocks">キャンセル</Link>
+                <Link href={stockRoutes.index.url()}>キャンセル</Link>
               </Button>
               <Button type="submit" disabled={isSubmitting} className="w-full">
                 {isSubmitting ? '保存中...' : '保存'}

@@ -1,15 +1,13 @@
 import { Link } from '@inertiajs/react';
 import { ChevronRight, Plus } from 'lucide-react';
-import { AppShell } from '@/components/layout/AppShell';
-import type { Stock } from '@/types';
+import type { Stock } from '@/features/stock/types';
+import stockRoutes from '@/routes/stocks';
+import { AppShell } from '@/shared/layouts/AppShell';
+import { formatDate } from '@/shared/lib/date';
 
 type Props = {
   stocks: Stock[];
 };
-
-function formatDate(value: string) {
-  return value.slice(0, 10).replace(/-/g, '/');
-}
 
 export default function Stocks({ stocks }: Props) {
   return (
@@ -28,7 +26,7 @@ export default function Stocks({ stocks }: Props) {
             {stocks.map((stock) => (
               <Link
                 key={stock.id}
-                href={`/app/stocks/${stock.id}/edit`}
+                href={stockRoutes.edit.url(stock.id)}
                 className="flex items-center gap-3 px-4 py-4 border-b border-line last:border-b-0 hover:bg-primary-50"
               >
                 <div className="flex-1 min-w-0">
@@ -46,7 +44,7 @@ export default function Stocks({ stocks }: Props) {
 
         <div className="flex justify-end mt-4">
           <Link
-            href="/app/stocks/create"
+            href={stockRoutes.create.url()}
             className="inline-flex items-center gap-1 bg-primary-600 text-white text-sm px-4 py-2 rounded-full hover:bg-primary-700 transition"
           >
             <Plus size={16} />
