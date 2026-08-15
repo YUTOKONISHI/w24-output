@@ -1,5 +1,5 @@
-import { Category, NewProduct, Product } from '@/types/admin';
-import { Dispatch, SetStateAction } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
+import type { Category, NewProduct, Product } from '@/types/admin';
 
 type Props = {
   products: Product[];
@@ -16,6 +16,23 @@ type Props = {
   onAdd: () => void;
   onShowNewRow: () => void;
 };
+
+/**
+ * 消費間隔の入力値を数値に変換する。
+ *
+ * 空欄と、数値として読めない入力（日本語入力がオンのままの全角数字など）は
+ * 未入力として null にする。Number() の結果をそのまま state に入れると
+ * NaN が入力欄に表示されて消せなくなる。
+ */
+function toDays(value: string): number | null {
+  if (value === '') {
+    return null;
+  }
+
+  const days = Number(value);
+
+  return Number.isNaN(days) ? null : days;
+}
 
 export function ProductTable({
   products,
@@ -86,11 +103,14 @@ export function ProductTable({
               <td className="py-3">
                 {editingId === product.id ? (
                   <input
-                    type="text"
+                    type="number"
+                    min="1"
                     value={editingProduct?.default_consumption_interval_days ?? ''}
                     onChange={(e) =>
                       onEditingProductChange((prev) =>
-                        prev ? { ...prev, default_consumption_interval_days: Number(e.target.value) } : null
+                        prev
+                          ? { ...prev, default_consumption_interval_days: toDays(e.target.value) }
+                          : null
                       )
                     }
                     className="w-full border-b border-line-strong focus:outline-none focus:border-primary-600 text-sm"
@@ -104,7 +124,11 @@ export function ProductTable({
               <td className="py-3">
                 {editingId === product.id ? (
                   <button
-                    disabled={editingProduct?.name === '' || editingProduct?.category_id === 0 || editingProduct?.default_consumption_interval_days === 0}
+                    disabled={
+                      editingProduct?.name === '' ||
+                      editingProduct?.category_id === 0 ||
+                      editingProduct?.default_consumption_interval_days === null
+                    }
                     onClick={onUpdate}
                     className="bg-primary-600 text-white text-sm px-4 py-1 rounded-full hover:bg-primary-700 disabled:bg-disabled disabled:cursor-not-allowed disabled:hover:bg-disabled"
                   >
@@ -157,9 +181,29 @@ export function ProductTable({
                 </select>
               </td>
               <td className="py-3">
+                <input
+                  type="number"
+                  min="1"
+                  placeholder="入力してください"
+                  value={newProduct.default_consumption_interval_days ?? ''}
+                  onChange={(e) =>
+                    onNewProductChange((prev) => ({
+                      ...prev,
+                      default_consumption_interval_days: toDays(e.target.value),
+                    }))
+                  }
+                  className="w-full border-b border-line-strong focus:outline-none focus:border-primary-600 text-sm placeholder-ink-muted"
+                />
+              </td>
+              <td className="py-3">
                 <button
+                  disabled={
+                    newProduct.name === '' ||
+                    newProduct.category_id === 0 ||
+                    newProduct.default_consumption_interval_days === null
+                  }
                   onClick={onAdd}
-                  className="bg-primary-600 text-white text-sm px-4 py-1 rounded-full hover:bg-primary-700"
+                  className="bg-primary-600 text-white text-sm px-4 py-1 rounded-full hover:bg-primary-700 disabled:bg-disabled disabled:cursor-not-allowed disabled:hover:bg-disabled"
                 >
                   登録
                 </button>

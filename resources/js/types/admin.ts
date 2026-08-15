@@ -14,4 +14,5 @@ export type Product = {
 export type NewProduct = {
   name: string;
   category_id: number;
+  default_consumption_interval_days: number | null;
 };

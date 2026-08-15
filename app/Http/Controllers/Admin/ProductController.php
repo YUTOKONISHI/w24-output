@@ -11,17 +11,23 @@ use Inertia\Inertia;
 
 class ProductController extends Controller
 {
+    /**
+     * 商品一覧画面を表示する
+     */
     public function index()
     {
         $products = Product::orderBy('created_at', 'desc')->get();
         $categories = Category::orderBy('name', 'asc')->get();
 
-        return Inertia::render('admin/dashboard',[
+        return Inertia::render('admin/dashboard', [
             'products' => $products,
             'categories' => $categories,
         ]);
     }
 
+    /**
+     * 商品を作成する
+     */
     public function store(Request $request)
     {
         $request->validate([
@@ -37,8 +43,13 @@ class ProductController extends Controller
             'created_by' => Auth::guard('admin')->id(),
             'updated_by' => Auth::guard('admin')->id(),
         ]);
+
+        return back();
     }
 
+    /**
+     * 商品を更新する
+     */
     public function update(Request $request, Product $product)
     {
         $request->validate([
@@ -46,7 +57,7 @@ class ProductController extends Controller
             'category_id' => ['required', 'exists:categories,id'],
             'default_consumption_interval_days' => ['required', 'integer', 'min:1'],
         ]);
-        
+
         $product->update([
             'name' => $request->name,
             'category_id' => $request->category_id,
@@ -57,6 +68,9 @@ class ProductController extends Controller
         return back();
     }
 
+    /**
+     * 商品を削除する
+     */
     public function destroy(Product $product)
     {
         $product->delete();

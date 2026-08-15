@@ -1,17 +1,16 @@
-import { useState } from 'react';
 import { router } from '@inertiajs/react';
+import { useState } from 'react';
 import { toast } from 'sonner';
-import { NewProduct, Product } from '@/types/admin';
+import type { NewProduct, Product } from '@/types/admin';
 
 export function useProductManagement() {
-  const [newProduct, setNewProduct] = useState<NewProduct>({ name: '', category_id: 0 });
+  const [newProduct, setNewProduct] = useState<NewProduct>({ name: '', category_id: 0, default_consumption_interval_days: null });
   const [showNewRow, setShowNewRow] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
   function handleDelete(id: number) {
     router.delete(`/admin/products/${id}`, {
-      onSuccess: () => { },
       onError: () => {
         toast.error('商品削除に失敗しました');
       },
@@ -24,7 +23,9 @@ export function useProductManagement() {
   }
 
   function handleUpdate() {
-    if (!editingProduct) return;
+    if (!editingProduct) {
+      return;
+    }
 
     router.put(`/admin/products/${editingProduct.id}`, {
       name: editingProduct.name,
@@ -42,21 +43,23 @@ export function useProductManagement() {
   }
 
   function handleAdd() {
-    if (!newProduct.name || newProduct.category_id === 0) return;
+    if (!newProduct.name || newProduct.category_id === 0 || newProduct.default_consumption_interval_days === null) {
+      return;
+    }
+
     router.post('/admin/products', {
       name: newProduct.name,
       category_id: newProduct.category_id,
+      default_consumption_interval_days: newProduct.default_consumption_interval_days,
     }, {
       onSuccess: () => {
-        setNewProduct({ name: '', category_id: 0 });
+        setNewProduct({ name: '', category_id: 0, default_consumption_interval_days: null });
         setShowNewRow(false);
       },
       onError: () => {
         toast.error('商品登録に失敗しました');
       },
     });
-    setNewProduct({ name: '', category_id: 0 });
-    setShowNewRow(false);
   }
 
   return {
