@@ -18,6 +18,15 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ]);
+
+        // 未認証のときの送り先を URL の接頭辞で振り分ける。既定では web ガードの
+        // login に送られるため、管理画面に入ろうとした人が一般ユーザーの
+        // ログイン画面に着いてしまう。
+        $middleware->redirectGuestsTo(
+            fn (Request $request) => $request->is('admin/*')
+                ? route('admin.login')
+                : route('login'),
+        );
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
