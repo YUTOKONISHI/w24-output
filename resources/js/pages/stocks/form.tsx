@@ -45,7 +45,7 @@ export default function StockForm({ products, stock }: Props) {
 
   return (
     <AppShell title={title} active="settings">
-      <h1 className="md:hidden text-xl font-bold text-ink text-center mb-6">{title}</h1>
+      <h1 className="mb-6 text-center text-xl font-bold text-ink md:hidden">{title}</h1>
 
       <div className="max-w-xl">
         <Form {...form}>
@@ -160,9 +160,7 @@ export default function StockForm({ products, stock }: Props) {
                       }}
                     />
                   </FormControl>
-                  <FormDescription>
-                    ストック1つあたりが何日もつかを入力します。
-                  </FormDescription>
+                  <FormDescription>ストック1つあたりが何日もつかを入力します。</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -197,7 +195,7 @@ export default function StockForm({ products, stock }: Props) {
         </Form>
 
         {isEdit && (
-          <div className="border-t border-line mt-8 pt-6">
+          <div className="mt-8 border-t border-line pt-6">
             <Button type="button" variant="ghost" onClick={remove} className="text-danger-600">
               このストックを削除
             </Button>

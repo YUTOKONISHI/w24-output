@@ -7,10 +7,9 @@ type Props = {
 };
 
 export function AdminHeader({ onCategoryManageClick, onPasswordChangeClick }: Props) {
-
   return (
     <header className="bg-surface shadow">
-      <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
         <h1 className="text-xl font-bold text-ink">マスタ画面</h1>
         <div className="flex items-center gap-4">
           <button
@@ -27,11 +26,7 @@ export function AdminHeader({ onCategoryManageClick, onPasswordChangeClick }: Pr
           >
             <KeyRound size={20} />
           </button>
-          <button
-            onClick={logout}
-            className="text-ink-muted hover:text-ink"
-            title="ログアウト"
-          >
+          <button onClick={logout} className="text-ink-muted hover:text-ink" title="ログアウト">
             <LogOut size={20} />
           </button>
         </div>

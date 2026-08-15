@@ -7,48 +7,47 @@
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 
 @theme {
-    --font-sans:
-        'Instrument Sans', ui-sans-serif, system-ui, sans-serif,
-        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
-        'Noto Color Emoji';
+  --font-sans:
+    'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    'Segoe UI Symbol', 'Noto Color Emoji';
 
-    /* ベース: ウォームニュートラル */
-    /* --color-canvas と --color-primary-600 は public/app/manifest.webmanifest の
+  /* ベース: ウォームニュートラル */
+  /* --color-canvas と --color-primary-600 は public/app/manifest.webmanifest の
        background_color / theme_color、app.blade.php の theme-color、
        public/app/offline.html、public/icons/ のアイコン背景と二重管理になっている。
        変えたときはそれらも直し、アイコンは再生成すること。 */
-    --color-canvas: #fbfaf7;
-    --color-surface: #ffffff;
-    --color-line: #e7e3dc;        /* 装飾罫線のみ。コントラスト 1.28:1 */
-    --color-line-strong: #8f8a80; /* 入力欄など操作可能な要素の境界。3.43:1 */
-    --color-ink: #2e2b27;
-    --color-ink-muted: #6f6a62;
-    --color-disabled: #b8b2a6;    /* 無効コントロール専用（SC 1.4.3 対象外） */
+  --color-canvas: #fbfaf7;
+  --color-surface: #ffffff;
+  --color-line: #e7e3dc; /* 装飾罫線のみ。コントラスト 1.28:1 */
+  --color-line-strong: #8f8a80; /* 入力欄など操作可能な要素の境界。3.43:1 */
+  --color-ink: #2e2b27;
+  --color-ink-muted: #6f6a62;
+  --color-disabled: #b8b2a6; /* 無効コントロール専用（SC 1.4.3 対象外） */
 
-    /* プライマリ: セージグリーン */
-    --color-primary-50: #f4f7f2;
-    --color-primary-100: #e6ede2;
-    --color-primary-200: #cbdac4;
-    --color-primary-400: #85a37b;
-    --color-primary-600: #547048;
-    --color-primary-700: #435a3a;
+  /* プライマリ: セージグリーン */
+  --color-primary-50: #f4f7f2;
+  --color-primary-100: #e6ede2;
+  --color-primary-200: #cbdac4;
+  --color-primary-400: #85a37b;
+  --color-primary-600: #547048;
+  --color-primary-700: #435a3a;
 
-    /* ステータス: 暖色は状態表現専用（主色には使わない） */
-    --color-danger-50: #fcf0ee;
-    --color-danger-600: #c0392b;
-    --color-warning-50: #fdf6e7;
-    --color-warning-400: #f2b441; /* 塗りに使う場合、上の文字は ink */
-    --color-warning-600: #8f5b0b;
-    --color-success-600: #4e7b4b;
-    --color-info-600: #3f6e8c;
+  /* ステータス: 暖色は状態表現専用（主色には使わない） */
+  --color-danger-50: #fcf0ee;
+  --color-danger-600: #c0392b;
+  --color-warning-50: #fdf6e7;
+  --color-warning-400: #f2b441; /* 塗りに使う場合、上の文字は ink */
+  --color-warning-600: #8f5b0b;
+  --color-success-600: #4e7b4b;
+  --color-info-600: #3f6e8c;
 }
 
 :root {
-    /* shadcn/ui の角丸の基準。ここから --radius-sm/md/lg/xl が導出され、
+  /* shadcn/ui の角丸の基準。ここから --radius-sm/md/lg/xl が導出され、
      * Tailwind 組み込みの rounded-sm/md/lg/xl を上書きする。
      * 0.5rem にすると導出値が Tailwind 既定と一致するため（sm 4px / md 6px / lg 8px / xl 12px）、
      * 既存の rounded-lg（カード11箇所）の見た目が変わらない。値を動かすとそこが一斉に変わる。 */
-    --radius: 0.5rem;
+  --radius: 0.5rem;
 }
 
 /* shadcn/ui のトークン。値は上の @theme を指すだけで、ここでは色を定義しない。
@@ -59,27 +58,27 @@
  * --input を使い、--color-line は装飾罫線用で白地に 1.28:1 しかない。
  * 操作可能な要素の境界は --color-line-strong（3.43:1）を使う。 */
 @theme inline {
-    --color-background: var(--color-canvas);
-    --color-foreground: var(--color-ink);
-    --color-card: var(--color-surface);
-    --color-card-foreground: var(--color-ink);
-    --color-popover: var(--color-surface);
-    --color-popover-foreground: var(--color-ink);
-    --color-primary: var(--color-primary-600);
-    --color-primary-foreground: #ffffff;
-    --color-secondary: var(--color-primary-100);
-    --color-secondary-foreground: var(--color-ink);
-    --color-muted: var(--color-line);
-    --color-muted-foreground: var(--color-ink-muted);
-    --color-accent: var(--color-primary-50);
-    --color-accent-foreground: var(--color-ink);
-    --color-destructive: var(--color-danger-600);
-    --color-border: var(--color-line);
-    --color-input: var(--color-line-strong);
-    --color-ring: var(--color-primary-600);
+  --color-background: var(--color-canvas);
+  --color-foreground: var(--color-ink);
+  --color-card: var(--color-surface);
+  --color-card-foreground: var(--color-ink);
+  --color-popover: var(--color-surface);
+  --color-popover-foreground: var(--color-ink);
+  --color-primary: var(--color-primary-600);
+  --color-primary-foreground: #ffffff;
+  --color-secondary: var(--color-primary-100);
+  --color-secondary-foreground: var(--color-ink);
+  --color-muted: var(--color-line);
+  --color-muted-foreground: var(--color-ink-muted);
+  --color-accent: var(--color-primary-50);
+  --color-accent-foreground: var(--color-ink);
+  --color-destructive: var(--color-danger-600);
+  --color-border: var(--color-line);
+  --color-input: var(--color-line-strong);
+  --color-ring: var(--color-primary-600);
 
-    --radius-sm: calc(var(--radius) - 4px);
-    --radius-md: calc(var(--radius) - 2px);
-    --radius-lg: var(--radius);
-    --radius-xl: calc(var(--radius) + 4px);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
 }

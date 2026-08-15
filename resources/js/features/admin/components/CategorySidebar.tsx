@@ -8,12 +8,12 @@ type Props = {
 
 export function CategorySidebar({ categories, selectedCategories, onToggleCategory }: Props) {
   return (
-    <aside className="w-48 border-r border-line p-4 shrink-0">
-      <p className="text-sm font-medium text-ink mb-3">商品カテゴリー</p>
+    <aside className="w-48 shrink-0 border-r border-line p-4">
+      <p className="mb-3 text-sm font-medium text-ink">商品カテゴリー</p>
       <ul className="space-y-2">
         {categories.map((category) => (
           <li key={category.id}>
-            <label className="flex items-center gap-2 text-sm text-ink cursor-pointer">
+            <label className="flex cursor-pointer items-center gap-2 text-sm text-ink">
               <input
                 type="checkbox"
                 checked={selectedCategories.includes(category.id)}

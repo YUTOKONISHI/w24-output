@@ -80,9 +80,7 @@ export default function Profile() {
 
   return (
     <AppShell title="個人情報の変更" active="settings">
-      <h1 className="md:hidden text-xl font-bold text-ink text-center mb-6">
-        個人情報の変更
-      </h1>
+      <h1 className="mb-6 text-center text-xl font-bold text-ink md:hidden">個人情報の変更</h1>
 
       <div className="max-w-xl">
         <Form {...form}>

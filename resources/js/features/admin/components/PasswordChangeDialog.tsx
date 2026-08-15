@@ -28,20 +28,23 @@ export function PasswordChangeDialog({ open, onClose }: Props) {
       return;
     }
 
-    updatePassword({
-      password: newPassword,
-      password_confirmation: confirmPassword,
-    }, {
-      onSuccess: () => {
-        setNewPassword('');
-        setConfirmPassword('');
-        toast.success('パスワードを変更しました');
-        onClose();
+    updatePassword(
+      {
+        password: newPassword,
+        password_confirmation: confirmPassword,
       },
-      onError: () => {
-        toast.error('パスワード変更に失敗しました');
+      {
+        onSuccess: () => {
+          setNewPassword('');
+          setConfirmPassword('');
+          toast.success('パスワードを変更しました');
+          onClose();
+        },
+        onError: () => {
+          toast.error('パスワード変更に失敗しました');
+        },
       },
-    });
+    );
   }
 
   return (

@@ -30,15 +30,18 @@ export default function ResetPassword({ token, email }: Props) {
   const { isSubmitting } = form.formState;
 
   function onSubmit(data: ResetPasswordForm) {
-    resetPassword({ ...data, token }, {
-      onError: (err) => {
-        (['email', 'password'] as const).forEach((field) => {
-          if (err[field]) {
-            form.setError(field, { message: err[field] });
-          }
-        });
+    resetPassword(
+      { ...data, token },
+      {
+        onError: (err) => {
+          (['email', 'password'] as const).forEach((field) => {
+            if (err[field]) {
+              form.setError(field, { message: err[field] });
+            }
+          });
+        },
       },
-    });
+    );
   }
 
   return (

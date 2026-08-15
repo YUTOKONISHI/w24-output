@@ -12,20 +12,20 @@ const MENU_ITEMS = [
 export default function Settings() {
   return (
     <AppShell title="設定" active="settings">
-      <h1 className="md:hidden text-xl font-bold text-ink text-center mb-6">設定</h1>
+      <h1 className="mb-6 text-center text-xl font-bold text-ink md:hidden">設定</h1>
 
       <div className="max-w-xl">
-        <h2 className="text-sm font-bold text-ink mb-3">設定項目</h2>
-        <div className="bg-surface rounded-lg border border-line overflow-hidden">
+        <h2 className="mb-3 text-sm font-bold text-ink">設定項目</h2>
+        <div className="overflow-hidden rounded-lg border border-line bg-surface">
           {MENU_ITEMS.map(({ href, icon: Icon, label }) => (
             <Link
               key={href}
               href={href}
-              className="flex items-center gap-3 px-4 py-4 border-b border-line last:border-b-0 hover:bg-primary-50"
+              className="flex items-center gap-3 border-b border-line px-4 py-4 last:border-b-0 hover:bg-primary-50"
             >
-              <Icon size={20} className="text-ink-muted shrink-0" />
+              <Icon size={20} className="shrink-0 text-ink-muted" />
               <span className="flex-1 text-sm text-ink">{label}</span>
-              <ChevronRight size={18} className="text-ink-muted shrink-0" />
+              <ChevronRight size={18} className="shrink-0 text-ink-muted" />
             </Link>
           ))}
         </div>

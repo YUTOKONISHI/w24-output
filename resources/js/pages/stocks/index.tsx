@@ -12,40 +12,38 @@ type Props = {
 export default function Stocks({ stocks }: Props) {
   return (
     <AppShell title="ストック管理" active="settings">
-      <h1 className="md:hidden text-xl font-bold text-ink text-center mb-6">
-        ストック管理
-      </h1>
+      <h1 className="mb-6 text-center text-xl font-bold text-ink md:hidden">ストック管理</h1>
 
       <div className="max-w-3xl">
-        <h2 className="text-sm font-bold text-ink mb-3">管理項目</h2>
+        <h2 className="mb-3 text-sm font-bold text-ink">管理項目</h2>
 
         {stocks.length === 0 ? (
           <p className="text-sm text-ink-muted">登録されているストックはありません</p>
         ) : (
-          <div className="bg-surface rounded-lg border border-line overflow-hidden">
+          <div className="overflow-hidden rounded-lg border border-line bg-surface">
             {stocks.map((stock) => (
               <Link
                 key={stock.id}
                 href={stockRoutes.edit.url(stock.id)}
-                className="flex items-center gap-3 px-4 py-4 border-b border-line last:border-b-0 hover:bg-primary-50"
+                className="flex items-center gap-3 border-b border-line px-4 py-4 last:border-b-0 hover:bg-primary-50"
               >
-                <div className="flex-1 min-w-0">
+                <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-ink">{stock.product.name}</p>
-                  <p className="text-xs text-ink-muted mt-1">
+                  <p className="mt-1 text-xs text-ink-muted">
                     次回購入予定日: {formatDate(stock.next_purchase_date)}
                   </p>
                   <p className="text-xs text-ink-muted">ストック数: {stock.quantity}</p>
                 </div>
-                <ChevronRight size={18} className="text-ink-muted shrink-0" />
+                <ChevronRight size={18} className="shrink-0 text-ink-muted" />
               </Link>
             ))}
           </div>
         )}
 
-        <div className="flex justify-end mt-4">
+        <div className="mt-4 flex justify-end">
           <Link
             href={stockRoutes.create.url()}
-            className="inline-flex items-center gap-1 bg-primary-600 text-white text-sm px-4 py-2 rounded-full hover:bg-primary-700 transition"
+            className="inline-flex items-center gap-1 rounded-full bg-primary-600 px-4 py-2 text-sm text-white transition hover:bg-primary-700"
           >
             <Plus size={16} />
             追加

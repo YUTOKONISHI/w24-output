@@ -9,15 +9,11 @@ type Props = {
 
 export function AuthCard({ title, description, children }: Props) {
   return (
-    <div className="min-h-screen bg-canvas flex items-center justify-center">
+    <div className="flex min-h-screen items-center justify-center bg-canvas">
       <Toaster position="top-center" />
-      <div className="bg-surface p-8 rounded-lg shadow w-full max-w-md">
-        <h1 className={`text-2xl font-bold text-ink ${description ? 'mb-2' : 'mb-6'}`}>
-          {title}
-        </h1>
-        {description && (
-          <p className="text-sm text-ink-muted mb-6">{description}</p>
-        )}
+      <div className="w-full max-w-md rounded-lg bg-surface p-8 shadow">
+        <h1 className={`text-2xl font-bold text-ink ${description ? 'mb-2' : 'mb-6'}`}>{title}</h1>
+        {description && <p className="mb-6 text-sm text-ink-muted">{description}</p>}
         {children}
       </div>
     </div>
