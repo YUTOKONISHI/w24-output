@@ -1,6 +1,7 @@
 import { router } from '@inertiajs/react';
 import { useMemo, useRef } from 'react';
 import type { UseFormSetError, UseFormSetValue } from 'react-hook-form';
+import { toDateInputValue } from '@/lib/date';
 import type { Category, Stock, StockFormProduct } from '@/types';
 
 export type StockFormValues = {
@@ -25,10 +26,6 @@ const FIELDS: (keyof StockFormValues)[] = [
   'consumption_interval_days',
   'next_purchase_date',
 ];
-
-function toDateInputValue(value: string) {
-  return value.slice(0, 10);
-}
 
 export function stockFormDefaults(stock: Stock | null): StockFormValues {
   if (stock === null) {

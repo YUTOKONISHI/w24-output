@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { AppShell } from '@/components/layout/AppShell';
+import { formatDate } from '@/lib/date';
 
 type NotificationLog = {
   id: number;
@@ -15,12 +16,6 @@ type Props = {
 
 export default function Notifications({ notifications }: Props) {
   const [enabled, setEnabled] = useState(true);
-
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-
-    return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}`;
-  }
 
   return (
     <AppShell title="Push通知" active="notifications">

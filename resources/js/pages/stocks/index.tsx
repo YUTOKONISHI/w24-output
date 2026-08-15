@@ -1,15 +1,12 @@
 import { Link } from '@inertiajs/react';
 import { ChevronRight, Plus } from 'lucide-react';
 import { AppShell } from '@/components/layout/AppShell';
+import { formatDate } from '@/lib/date';
 import type { Stock } from '@/types';
 
 type Props = {
   stocks: Stock[];
 };
-
-function formatDate(value: string) {
-  return value.slice(0, 10).replace(/-/g, '/');
-}
 
 export default function Stocks({ stocks }: Props) {
   return (
