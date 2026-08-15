@@ -1,5 +1,5 @@
 import { useMemo, useRef } from 'react';
-import type { UseFormSetError, UseFormSetValue } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { toDateInputValue } from '@/shared/lib/date';
 import type { Category } from '@/shared/types/catalog';
 import { createStock, deleteStock, updateStock } from '../api';
@@ -17,9 +17,6 @@ export type StockFormValues = {
 type Params = {
   stock: Stock | null;
   products: StockFormProduct[];
-  categoryId: string;
-  setValue: UseFormSetValue<StockFormValues>;
-  setError: UseFormSetError<StockFormValues>;
 };
 
 const FIELDS: (keyof StockFormValues)[] = [
@@ -29,7 +26,7 @@ const FIELDS: (keyof StockFormValues)[] = [
   'next_purchase_date',
 ];
 
-export function stockFormDefaults(stock: Stock | null): StockFormValues {
+function stockFormDefaults(stock: Stock | null): StockFormValues {
   if (stock === null) {
     return {
       category_id: '',
@@ -49,7 +46,16 @@ export function stockFormDefaults(stock: Stock | null): StockFormValues {
   };
 }
 
-export function useStockForm({ stock, products, categoryId, setValue, setError }: Params) {
+/**
+ * ストック設定画面のフォーム。
+ *
+ * フォームの実体をここで作って返す。初期値の組み立て、カテゴリで絞った商品の
+ * 一覧、消費日数の自動入力、サーバのエラーの反映が、どれもフォームの値と
+ * 結びついているため、ページ側とフックに分けても片方だけでは完結しない。
+ */
+export function useStockForm({ stock, products }: Params) {
+  const form = useForm<StockFormValues>({ defaultValues: stockFormDefaults(stock) });
+  const categoryId = useWatch({ control: form.control, name: 'category_id' });
   const isEdit = stock !== null;
   const intervalEdited = useRef(false);
 
@@ -74,7 +80,7 @@ export function useStockForm({ stock, products, categoryId, setValue, setError }
   }
 
   function handleCategoryChange() {
-    setValue('product_id', '');
+    form.setValue('product_id', '');
   }
 
   function handleProductChange(productId: string) {
@@ -85,13 +91,16 @@ export function useStockForm({ stock, products, categoryId, setValue, setError }
     const product = products.find((candidate) => String(candidate.id) === productId);
     const days = product?.initial_consumption_interval_days;
 
-    setValue('consumption_interval_days', days === null || days === undefined ? '' : String(days));
+    form.setValue(
+      'consumption_interval_days',
+      days === null || days === undefined ? '' : String(days),
+    );
   }
 
   function applyErrors(errors: Record<string, string>) {
     FIELDS.forEach((field) => {
       if (errors[field]) {
-        setError(field, { message: errors[field] });
+        form.setError(field, { message: errors[field] });
       }
     });
   }
@@ -125,7 +134,9 @@ export function useStockForm({ stock, products, categoryId, setValue, setError }
   }
 
   return {
+    form,
     isEdit,
+    hasCategory: categoryId !== '',
     categories,
     visibleProducts,
     markIntervalEdited,

@@ -235,3 +235,39 @@ docker compose exec laravel.test npm run lint:check
 - **`useStockForm` の引数**。`setValue` と `setError` を呼び出し側から受け取っており、react-hook-form のフォーム実体に依存している。フックの中でフォームを作って返す形にすればページから5行減るが、`useWatch` の扱いを含めて設計が変わるため今回は触っていない
 - **Push通知画面の通知設定**。`enabled` の `useState` はどこにも送っておらず、画面の中だけで完結している。`20260729-pwa-general-user-only.md` のフェーズ2で扱う
 - **`features/notification`**。今は `types.ts` だけで、画面の状態もサーバ呼び出しも無い。Push通知の実装が入った時点で `api.ts` と `hooks/` が埋まる
+
+## 改訂（2026-08-16 その2）
+
+### `useStockForm` がフォームを作って返す形にした
+
+残件に挙げていた件に対応した。`setValue` と `setError` を呼び出し側から受け取る形をやめ、`useForm` と `useWatch` をフックの中に入れて `form` を返す。
+
+分けても片方だけでは完結しない4つが、どれもフォームの値に結びついていたのが理由である。
+
+| 関心 | フォームとの結びつき |
+|---|---|
+| 初期値の組み立て | `stockFormDefaults(stock)` が `useForm` の `defaultValues` になる |
+| カテゴリで絞った商品の一覧 | `category_id` の現在値が要る（`useWatch`） |
+| 消費日数の自動入力 | `setValue('consumption_interval_days', ...)` |
+| サーバのエラーの反映 | `setError(field, ...)` |
+
+呼び出し側からフォームの部品を渡していたのは、フックの外にフォームがあったからで、置き場所が逆だった。
+
+### 呼び出し順は変わっていない
+
+移動前はページが `useForm`、`useWatch` を呼び、その後フックが `useRef` と `useMemo` を2回呼んでいた。移動後は同じ順序でフックの中に並ぶ。ページはこのフックを無条件に1回呼ぶだけなので、React のフックの呼び出し順は変わらない。`useWatch` が再描画させる対象も、フックを呼んでいるページのままである。
+
+### `categoryId` ではなく `hasCategory` を返す
+
+ページが `categoryId` を使っていたのは2か所で、どちらも「カテゴリが選ばれているか」だけを見ていた。値そのものを返すとページが再び文字列の空判定を書くことになるので、真偽値にした。
+
+```
+disabled={isEdit || !hasCategory}
+placeholder={hasCategory ? '選択してください' : '先にカテゴリを選択してください'}
+```
+
+`stockFormDefaults` はフックの外から呼ばれなくなったのでエクスポートをやめた。
+
+### 検証
+
+`npm run types:check`、`npm run lint:check`、`npm run build` が通る。加えて、シーダーの一般ユーザーでログインして `/app/stocks/create` を取得し、`stocks/form` が描画され `products` が17件、`initial_consumption_interval_days` が世帯人数で割られた値で載っていることを確認した。ブラウザでの操作は確かめていない。

@@ -1,7 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { useForm, useWatch } from 'react-hook-form';
-import { stockFormDefaults, useStockForm } from '@/features/stock/hooks/useStockForm';
-import type { StockFormValues } from '@/features/stock/hooks/useStockForm';
+import { useStockForm } from '@/features/stock/hooks/useStockForm';
 import type { Stock, StockFormProduct } from '@/features/stock/types';
 import stockRoutes from '@/routes/stocks';
 import { Button } from '@/shared/components/ui/button';
@@ -30,11 +28,10 @@ type Props = {
 };
 
 export default function StockForm({ products, stock }: Props) {
-  const form = useForm<StockFormValues>({ defaultValues: stockFormDefaults(stock) });
-  const { isSubmitting } = form.formState;
-  const categoryId = useWatch({ control: form.control, name: 'category_id' });
   const {
+    form,
     isEdit,
+    hasCategory,
     categories,
     visibleProducts,
     markIntervalEdited,
@@ -42,13 +39,8 @@ export default function StockForm({ products, stock }: Props) {
     handleProductChange,
     submit,
     remove,
-  } = useStockForm({
-    stock,
-    products,
-    categoryId,
-    setValue: form.setValue,
-    setError: form.setError,
-  });
+  } = useStockForm({ stock, products });
+  const { isSubmitting } = form.formState;
   const title = isEdit ? 'ストック設定' : 'ストック追加';
 
   return (
@@ -104,13 +96,13 @@ export default function StockForm({ products, stock }: Props) {
                       field.onChange(value);
                       handleProductChange(value);
                     }}
-                    disabled={isEdit || categoryId === ''}
+                    disabled={isEdit || !hasCategory}
                   >
                     <FormControl>
                       <SelectTrigger className="w-full">
                         <SelectValue
                           placeholder={
-                            categoryId === '' ? '先にカテゴリを選択してください' : '選択してください'
+                            hasCategory ? '選択してください' : '先にカテゴリを選択してください'
                           }
                         />
                       </SelectTrigger>
