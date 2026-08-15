@@ -31,8 +31,18 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+          composer install -q --no-ansi --no-interaction --no-progress --prefer-dist
           npm ci
+
+      - name: Copy Environment File
+        run: cp .env.example .env
+
+      # resources/js の actions / routes / wayfinder は .gitignore 済みで、
+      # チェックアウト直後には存在しない。無いまま eslint を掛けると
+      # @/routes/... が解決できず import/order の分類が変わって落ちる。
+      # vite.config.ts の formVariants: true に合わせて --with-form を付ける。
+      - name: Generate Wayfinder Definitions
+        run: php artisan wayfinder:generate --with-form
 
       - name: Check PHP Formatting
         run: composer lint:check
