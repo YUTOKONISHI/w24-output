@@ -44,8 +44,8 @@ export default function AdminDashboard({ products, categories }: Props) {
         onClose={() => setCategoryDialogOpen(false)}
         categories={categories}
       />
-      <main className="max-w-6xl mx-auto px-4 py-8">
-        <div className="bg-surface rounded-lg shadow flex">
+      <main className="mx-auto max-w-6xl px-4 py-8">
+        <div className="flex rounded-lg bg-surface shadow">
           <CategorySidebar
             categories={categories}
             selectedCategories={selectedCategories}

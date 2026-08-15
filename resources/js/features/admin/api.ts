@@ -22,19 +22,27 @@ export function updatePassword(
 }
 
 export function createProduct(product: NewProduct, callbacks: Callbacks) {
-  router.post(admin.products.store.url(), {
-    name: product.name,
-    category_id: product.category_id,
-    default_consumption_interval_days: product.default_consumption_interval_days,
-  }, callbacks);
+  router.post(
+    admin.products.store.url(),
+    {
+      name: product.name,
+      category_id: product.category_id,
+      default_consumption_interval_days: product.default_consumption_interval_days,
+    },
+    callbacks,
+  );
 }
 
 export function updateProduct(product: Product, callbacks: Callbacks) {
-  router.put(admin.products.update.url(product.id), {
-    name: product.name,
-    category_id: product.category_id,
-    default_consumption_interval_days: product.default_consumption_interval_days,
-  }, callbacks);
+  router.put(
+    admin.products.update.url(product.id),
+    {
+      name: product.name,
+      category_id: product.category_id,
+      default_consumption_interval_days: product.default_consumption_interval_days,
+    },
+    callbacks,
+  );
 }
 
 export function deleteProduct(id: number, callbacks: Callbacks) {

@@ -3,19 +3,13 @@ name: linter
 on:
   push:
     branches:
-      - develop
       - main
-      - master
-      - workos
   pull_request:
     branches:
-      - develop
       - main
-      - master
-      - workos
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   quality:
@@ -30,22 +24,31 @@ jobs:
         with:
           php-version: '8.4'
 
+      - name: Setup Node
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version: '22'
+
       - name: Install Dependencies
         run: |
-          composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
-          npm install
+          composer install -q --no-ansi --no-interaction --no-progress --prefer-dist
+          npm ci
 
-      - name: Run Pint
-        run: composer lint
+      - name: Copy Environment File
+        run: cp .env.example .env
 
-      - name: Format Frontend
-        run: npm run format
+      # resources/js の actions / routes / wayfinder は .gitignore 済みで、
+      # チェックアウト直後には存在しない。無いまま eslint を掛けると
+      # @/routes/... が解決できず import/order の分類が変わって落ちる。
+      # vite.config.ts の formVariants: true に合わせて --with-form を付ける。
+      - name: Generate Wayfinder Definitions
+        run: php artisan wayfinder:generate --with-form
+
+      - name: Check PHP Formatting
+        run: composer lint:check
+
+      - name: Check Frontend Formatting
+        run: npm run format:check
 
       - name: Lint Frontend
-        run: npm run lint
-
-      # - name: Commit Changes
-      #   uses: stefanzweifel/git-auto-commit-action@v7
-      #   with:
-      #     commit_message: fix code style
-      #     commit_options: '--no-verify'
+        run: npm run lint:check

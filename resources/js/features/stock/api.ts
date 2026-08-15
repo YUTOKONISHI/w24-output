@@ -16,11 +16,7 @@ export function createStock(
   router.post(stocks.store.url(), payload, { onError });
 }
 
-export function updateStock(
-  id: number,
-  payload: StockPayload,
-  onError: (errors: Errors) => void,
-) {
+export function updateStock(id: number, payload: StockPayload, onError: (errors: Errors) => void) {
   router.put(stocks.update.url(id), payload, { onError });
 }
 

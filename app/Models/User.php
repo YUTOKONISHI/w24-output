@@ -43,11 +43,13 @@ class User extends Authenticatable
         ];
     }
 
+    /** @return HasMany<Stock, $this> */
     public function stocks(): HasMany
     {
         return $this->hasMany(Stock::class);
     }
 
+    /** @return HasMany<NotificationLog, $this> */
     public function notificationLogs(): HasMany
     {
         return $this->hasMany(NotificationLog::class);

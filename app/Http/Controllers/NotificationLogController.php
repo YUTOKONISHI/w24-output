@@ -3,16 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Models\NotificationLog;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class NotificationLogController extends Controller
 {
     /**
      * 通知ログ画面を表示する
      */
-    public function index()
+    public function index(): Response
     {
         $notifications = NotificationLog::where('user_id', Auth::id())->orderBy('created_at', 'desc')->get();
 
@@ -24,7 +26,7 @@ class NotificationLogController extends Controller
     /**
      * 通知ログを作成する
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $request->validate([
             'title' => ['required', 'string', 'max:255'],
@@ -45,7 +47,7 @@ class NotificationLogController extends Controller
     /**
      * 通知ログを削除する
      */
-    public function destroy(NotificationLog $notificationLog)
+    public function destroy(NotificationLog $notificationLog): RedirectResponse
     {
         abort_if($notificationLog->user_id !== Auth::id(), 403);
 

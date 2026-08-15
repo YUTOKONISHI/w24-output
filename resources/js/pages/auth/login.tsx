@@ -82,11 +82,11 @@ export default function Login() {
               </FormItem>
             )}
           />
-          {authError && <p className="text-danger-600 text-sm">{authError}</p>}
+          {authError && <p className="text-sm text-danger-600">{authError}</p>}
           <Button type="submit" disabled={isSubmitting} className="w-full">
             {isSubmitting ? 'ログイン中...' : 'ログイン'}
           </Button>
-          <div className="flex justify-between text-sm mt-4">
+          <div className="mt-4 flex justify-between text-sm">
             <Link href={forgotPassword.url()} className="text-primary-700 hover:underline">
               パスワードをお忘れですか？
             </Link>

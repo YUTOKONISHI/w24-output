@@ -5,16 +5,18 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class ProductController extends Controller
 {
     /**
      * 商品一覧画面を表示する
      */
-    public function index()
+    public function index(): Response
     {
         $products = Product::withCount('stocks')->orderBy('created_at', 'desc')->get();
         $categories = Category::withCount('products')->orderBy('name', 'asc')->get();
@@ -28,7 +30,7 @@ class ProductController extends Controller
     /**
      * 商品を作成する
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -50,7 +52,7 @@ class ProductController extends Controller
     /**
      * 商品を更新する
      */
-    public function update(Request $request, Product $product)
+    public function update(Request $request, Product $product): RedirectResponse
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -71,7 +73,7 @@ class ProductController extends Controller
     /**
      * 商品を削除する
      */
-    public function destroy(Product $product)
+    public function destroy(Product $product): RedirectResponse
     {
         if ($product->stocks()->exists()) {
             return back()->withErrors(['delete' => 'この商品は利用者のストックに登録されているため削除できません']);

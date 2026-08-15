@@ -44,10 +44,10 @@ export function ProductTable({ products, categories }: Props) {
       <table className="w-full">
         <thead>
           <tr className="border-b border-line text-sm text-ink-muted">
-            <th className="text-left py-2 font-medium w-1/3">商品名</th>
-            <th className="text-left py-2 font-medium w-1/4">商品カテゴリ</th>
-            <th className="text-left py-2 font-medium w-1/6">消費間隔（日）</th>
-            <th className="text-left py-2 font-medium">変更・削除</th>
+            <th className="w-1/3 py-2 text-left font-medium">商品名</th>
+            <th className="w-1/4 py-2 text-left font-medium">商品カテゴリ</th>
+            <th className="w-1/6 py-2 text-left font-medium">消費間隔（日）</th>
+            <th className="py-2 text-left font-medium">変更・削除</th>
           </tr>
         </thead>
         <tbody>
@@ -59,11 +59,9 @@ export function ProductTable({ products, categories }: Props) {
                     type="text"
                     value={editingProduct?.name}
                     onChange={(e) =>
-                      setEditingProduct((prev) =>
-                        prev ? { ...prev, name: e.target.value } : null
-                      )
+                      setEditingProduct((prev) => (prev ? { ...prev, name: e.target.value } : null))
                     }
-                    className="w-full border-b border-line-strong focus:outline-none focus:border-primary-600 text-sm"
+                    className="w-full border-b border-line-strong text-sm focus:border-primary-600 focus:outline-none"
                   />
                 ) : (
                   <span className="text-sm text-ink">{product.name}</span>
@@ -75,13 +73,15 @@ export function ProductTable({ products, categories }: Props) {
                     value={editingProduct?.category_id}
                     onChange={(e) =>
                       setEditingProduct((prev) =>
-                        prev ? { ...prev, category_id: Number(e.target.value) } : null
+                        prev ? { ...prev, category_id: Number(e.target.value) } : null,
                       )
                     }
-                    className="w-full border-b border-line-strong focus:outline-none text-sm"
+                    className="w-full border-b border-line-strong text-sm focus:outline-none"
                   >
                     {categories.map((c) => (
-                      <option key={c.id} value={c.id}>{c.name}</option>
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
                     ))}
                   </select>
                 ) : (
@@ -100,10 +100,10 @@ export function ProductTable({ products, categories }: Props) {
                       setEditingProduct((prev) =>
                         prev
                           ? { ...prev, default_consumption_interval_days: toDays(e.target.value) }
-                          : null
+                          : null,
                       )
                     }
-                    className="w-full border-b border-line-strong focus:outline-none focus:border-primary-600 text-sm"
+                    className="w-full border-b border-line-strong text-sm focus:border-primary-600 focus:outline-none"
                   />
                 ) : (
                   <span className="text-sm text-ink">
@@ -120,7 +120,7 @@ export function ProductTable({ products, categories }: Props) {
                       editingProduct?.default_consumption_interval_days === null
                     }
                     onClick={update}
-                    className="bg-primary-600 text-white text-sm px-4 py-1 rounded-full hover:bg-primary-700 disabled:bg-disabled disabled:cursor-not-allowed disabled:hover:bg-disabled"
+                    className="rounded-full bg-primary-600 px-4 py-1 text-sm text-white hover:bg-primary-700 disabled:cursor-not-allowed disabled:bg-disabled disabled:hover:bg-disabled"
                   >
                     保存
                   </button>
@@ -128,7 +128,7 @@ export function ProductTable({ products, categories }: Props) {
                   <div className="flex gap-2">
                     <button
                       onClick={() => edit(product)}
-                      className="bg-primary-600 text-white text-sm px-4 py-1 rounded-full hover:bg-primary-700"
+                      className="rounded-full bg-primary-600 px-4 py-1 text-sm text-white hover:bg-primary-700"
                     >
                       変更
                     </button>
@@ -140,7 +140,7 @@ export function ProductTable({ products, categories }: Props) {
                           : undefined
                       }
                       onClick={() => remove(product.id)}
-                      className="border border-danger-600 text-danger-600 text-sm px-4 py-1 rounded-full hover:bg-danger-50 disabled:border-disabled disabled:text-ink-muted disabled:cursor-not-allowed disabled:hover:bg-transparent"
+                      className="rounded-full border border-danger-600 px-4 py-1 text-sm text-danger-600 hover:bg-danger-50 disabled:cursor-not-allowed disabled:border-disabled disabled:text-ink-muted disabled:hover:bg-transparent"
                     >
                       削除
                     </button>
@@ -156,10 +156,8 @@ export function ProductTable({ products, categories }: Props) {
                   type="text"
                   placeholder="入力してください"
                   value={newProduct.name}
-                  onChange={(e) =>
-                    setNewProduct((prev) => ({ ...prev, name: e.target.value }))
-                  }
-                  className="w-full border-b border-line-strong focus:outline-none focus:border-primary-600 text-sm placeholder-ink-muted"
+                  onChange={(e) => setNewProduct((prev) => ({ ...prev, name: e.target.value }))}
+                  className="w-full border-b border-line-strong text-sm placeholder-ink-muted focus:border-primary-600 focus:outline-none"
                 />
               </td>
               <td className="py-3">
@@ -168,11 +166,13 @@ export function ProductTable({ products, categories }: Props) {
                   onChange={(e) =>
                     setNewProduct((prev) => ({ ...prev, category_id: Number(e.target.value) }))
                   }
-                  className="w-full border-b border-line-strong focus:outline-none text-sm"
+                  className="w-full border-b border-line-strong text-sm focus:outline-none"
                 >
                   <option value={0}>選択してください</option>
                   {categories.map((c) => (
-                    <option key={c.id} value={c.id}>{c.name}</option>
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
                   ))}
                 </select>
               </td>
@@ -188,7 +188,7 @@ export function ProductTable({ products, categories }: Props) {
                       default_consumption_interval_days: toDays(e.target.value),
                     }))
                   }
-                  className="w-full border-b border-line-strong focus:outline-none focus:border-primary-600 text-sm placeholder-ink-muted"
+                  className="w-full border-b border-line-strong text-sm placeholder-ink-muted focus:border-primary-600 focus:outline-none"
                 />
               </td>
               <td className="py-3">
@@ -199,7 +199,7 @@ export function ProductTable({ products, categories }: Props) {
                     newProduct.default_consumption_interval_days === null
                   }
                   onClick={add}
-                  className="bg-primary-600 text-white text-sm px-4 py-1 rounded-full hover:bg-primary-700 disabled:bg-disabled disabled:cursor-not-allowed disabled:hover:bg-disabled"
+                  className="rounded-full bg-primary-600 px-4 py-1 text-sm text-white hover:bg-primary-700 disabled:cursor-not-allowed disabled:bg-disabled disabled:hover:bg-disabled"
                 >
                   登録
                 </button>
@@ -209,10 +209,10 @@ export function ProductTable({ products, categories }: Props) {
         </tbody>
       </table>
 
-      <div className="flex justify-end mt-6">
+      <div className="mt-6 flex justify-end">
         <button
           onClick={() => setShowNewRow(true)}
-          className="bg-primary-600 text-white text-sm px-6 py-2 rounded-full hover:bg-primary-700 flex items-center gap-2"
+          className="flex items-center gap-2 rounded-full bg-primary-600 px-6 py-2 text-sm text-white hover:bg-primary-700"
         >
           ＋ 追加
         </button>

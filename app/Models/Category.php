@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Fillable('name', 'created_by', 'updated_by')]
 class Category extends Model
 {
+    /** @return HasMany<Product, $this> */
     public function products(): HasMany
     {
         return $this->hasMany(Product::class);

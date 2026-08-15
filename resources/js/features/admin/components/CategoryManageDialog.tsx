@@ -62,9 +62,7 @@ export function CategoryManageDialog({ open, onClose, categories }: Props) {
               ) : (
                 <div className="flex items-center gap-2">
                   <span className="flex-1 text-sm text-ink">{category.name}</span>
-                  <span className="text-xs text-ink-muted">
-                    商品{category.products_count}件
-                  </span>
+                  <span className="text-xs text-ink-muted">商品{category.products_count}件</span>
                   <Button type="button" size="sm" onClick={() => edit(category)}>
                     変更
                   </Button>

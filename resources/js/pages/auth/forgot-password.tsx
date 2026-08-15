@@ -58,7 +58,7 @@ export default function ForgotPassword() {
           <Button type="submit" disabled={isSubmitting} className="w-full">
             {isSubmitting ? '送信中...' : 'リセットリンクを送信'}
           </Button>
-          <div className="text-sm mt-4">
+          <div className="mt-4 text-sm">
             <Link href={login.url()} className="text-primary-700 hover:underline">
               ログインに戻る
             </Link>

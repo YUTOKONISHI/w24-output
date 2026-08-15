@@ -78,15 +78,14 @@ type Props = {
 };
 
 export function AppShell({ title, active, children }: Props) {
-
   return (
-    <div className="min-h-screen bg-canvas flex flex-col">
+    <div className="flex min-h-screen flex-col bg-canvas">
       <Head title={title} />
 
       <Toaster position="top-center" />
 
-      <header className="hidden md:block bg-surface border-b border-line">
-        <div className="max-w-5xl mx-auto px-6 py-4 flex justify-between items-center">
+      <header className="hidden border-b border-line bg-surface md:block">
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
           <h1 className="text-xl font-bold text-ink">{title}</h1>
           <div className="flex items-center gap-4">
             {HEADER_ITEMS.map((item) => (
@@ -103,10 +102,10 @@ export function AppShell({ title, active, children }: Props) {
       </header>
 
       <main className="flex-1 pb-24 md:pb-8">
-        <div className="max-w-5xl mx-auto px-4 md:px-6 pt-6 w-full">{children}</div>
+        <div className="mx-auto w-full max-w-5xl px-4 pt-6 md:px-6">{children}</div>
       </main>
 
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-surface border-t border-line">
+      <nav className="fixed right-0 bottom-0 left-0 border-t border-line bg-surface md:hidden">
         <div className="flex justify-around py-3">
           {NAV_ITEMS.map((item) => (
             <NavItemView

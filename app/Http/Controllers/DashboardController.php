@@ -5,13 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\Stock;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class DashboardController extends Controller
 {
     /**
      * ダッシュボード画面を表示する
      */
-    public function index()
+    public function index(): Response
     {
         // ログインユーザーの購入予定品を、要件どおりストック数1のものを先頭に、
         // その中と残りをそれぞれ次回購入予定日の早い順で取得する。
