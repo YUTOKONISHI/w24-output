@@ -1,20 +1,9 @@
-import type { Dispatch, SetStateAction } from 'react';
-import type { AdminProduct, Category, NewProduct, Product } from '@/types/admin';
+import { useProductManagement } from '@/hooks/admin/useProductManagement';
+import type { AdminProduct, Category } from '@/types/admin';
 
 type Props = {
   products: AdminProduct[];
   categories: Category[];
-  editingId: number | null;
-  editingProduct: Product | null;
-  showNewRow: boolean;
-  newProduct: NewProduct;
-  onEdit: (product: Product) => void;
-  onUpdate: () => void;
-  onDelete: (id: number) => void;
-  onEditingProductChange: Dispatch<SetStateAction<Product | null>>;
-  onNewProductChange: Dispatch<SetStateAction<NewProduct>>;
-  onAdd: () => void;
-  onShowNewRow: () => void;
 };
 
 /**
@@ -34,21 +23,21 @@ function toDays(value: string): number | null {
   return Number.isNaN(days) ? null : days;
 }
 
-export function ProductTable({
-  products,
-  categories,
-  editingId,
-  editingProduct,
-  showNewRow,
-  newProduct,
-  onEdit,
-  onUpdate,
-  onDelete,
-  onEditingProductChange,
-  onNewProductChange,
-  onAdd,
-  onShowNewRow,
-}: Props) {
+export function ProductTable({ products, categories }: Props) {
+  const {
+    newProduct,
+    setNewProduct,
+    showNewRow,
+    setShowNewRow,
+    editingId,
+    editingProduct,
+    setEditingProduct,
+    add,
+    edit,
+    update,
+    remove,
+  } = useProductManagement();
+
   return (
     <div className="flex-1 p-6">
       <table className="w-full">
@@ -69,7 +58,7 @@ export function ProductTable({
                     type="text"
                     value={editingProduct?.name}
                     onChange={(e) =>
-                      onEditingProductChange((prev) =>
+                      setEditingProduct((prev) =>
                         prev ? { ...prev, name: e.target.value } : null
                       )
                     }
@@ -84,7 +73,7 @@ export function ProductTable({
                   <select
                     value={editingProduct?.category_id}
                     onChange={(e) =>
-                      onEditingProductChange((prev) =>
+                      setEditingProduct((prev) =>
                         prev ? { ...prev, category_id: Number(e.target.value) } : null
                       )
                     }
@@ -107,7 +96,7 @@ export function ProductTable({
                     min="1"
                     value={editingProduct?.default_consumption_interval_days ?? ''}
                     onChange={(e) =>
-                      onEditingProductChange((prev) =>
+                      setEditingProduct((prev) =>
                         prev
                           ? { ...prev, default_consumption_interval_days: toDays(e.target.value) }
                           : null
@@ -129,7 +118,7 @@ export function ProductTable({
                       editingProduct?.category_id === 0 ||
                       editingProduct?.default_consumption_interval_days === null
                     }
-                    onClick={onUpdate}
+                    onClick={update}
                     className="bg-primary-600 text-white text-sm px-4 py-1 rounded-full hover:bg-primary-700 disabled:bg-disabled disabled:cursor-not-allowed disabled:hover:bg-disabled"
                   >
                     保存
@@ -137,7 +126,7 @@ export function ProductTable({
                 ) : (
                   <div className="flex gap-2">
                     <button
-                      onClick={() => onEdit(product)}
+                      onClick={() => edit(product)}
                       className="bg-primary-600 text-white text-sm px-4 py-1 rounded-full hover:bg-primary-700"
                     >
                       変更
@@ -149,7 +138,7 @@ export function ProductTable({
                           ? '利用者のストックに登録されているため削除できません'
                           : undefined
                       }
-                      onClick={() => onDelete(product.id)}
+                      onClick={() => remove(product.id)}
                       className="border border-danger-600 text-danger-600 text-sm px-4 py-1 rounded-full hover:bg-danger-50 disabled:border-disabled disabled:text-ink-muted disabled:cursor-not-allowed disabled:hover:bg-transparent"
                     >
                       削除
@@ -167,7 +156,7 @@ export function ProductTable({
                   placeholder="入力してください"
                   value={newProduct.name}
                   onChange={(e) =>
-                    onNewProductChange((prev) => ({ ...prev, name: e.target.value }))
+                    setNewProduct((prev) => ({ ...prev, name: e.target.value }))
                   }
                   className="w-full border-b border-line-strong focus:outline-none focus:border-primary-600 text-sm placeholder-ink-muted"
                 />
@@ -176,7 +165,7 @@ export function ProductTable({
                 <select
                   value={newProduct.category_id}
                   onChange={(e) =>
-                    onNewProductChange((prev) => ({ ...prev, category_id: Number(e.target.value) }))
+                    setNewProduct((prev) => ({ ...prev, category_id: Number(e.target.value) }))
                   }
                   className="w-full border-b border-line-strong focus:outline-none text-sm"
                 >
@@ -193,7 +182,7 @@ export function ProductTable({
                   placeholder="入力してください"
                   value={newProduct.default_consumption_interval_days ?? ''}
                   onChange={(e) =>
-                    onNewProductChange((prev) => ({
+                    setNewProduct((prev) => ({
                       ...prev,
                       default_consumption_interval_days: toDays(e.target.value),
                     }))
@@ -208,7 +197,7 @@ export function ProductTable({
                     newProduct.category_id === 0 ||
                     newProduct.default_consumption_interval_days === null
                   }
-                  onClick={onAdd}
+                  onClick={add}
                   className="bg-primary-600 text-white text-sm px-4 py-1 rounded-full hover:bg-primary-700 disabled:bg-disabled disabled:cursor-not-allowed disabled:hover:bg-disabled"
                 >
                   登録
@@ -221,7 +210,7 @@ export function ProductTable({
 
       <div className="flex justify-end mt-6">
         <button
-          onClick={onShowNewRow}
+          onClick={() => setShowNewRow(true)}
           className="bg-primary-600 text-white text-sm px-6 py-2 rounded-full hover:bg-primary-700 flex items-center gap-2"
         >
           ＋ 追加

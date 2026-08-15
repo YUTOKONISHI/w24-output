@@ -9,7 +9,7 @@ export function useCategoryManagement() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editingName, setEditingName] = useState('');
 
-  function handleCategoryAdd() {
+  function add() {
     if (newName.trim() === '') {
       return;
     }
@@ -25,25 +25,24 @@ export function useCategoryManagement() {
     });
   }
 
-  function handleCategoryEdit(category: AdminCategory) {
+  function edit(category: AdminCategory) {
     setEditingId(category.id);
     setEditingName(category.name);
   }
 
-  function handleCategoryEditCancel() {
+  function cancelEdit() {
     setEditingId(null);
     setEditingName('');
   }
 
-  function handleCategoryUpdate() {
+  function update() {
     if (editingId === null || editingName.trim() === '') {
       return;
     }
 
     router.put(admin.categories.update.url(editingId), { name: editingName }, {
       onSuccess: () => {
-        setEditingId(null);
-        setEditingName('');
+        cancelEdit();
         toast.success('カテゴリを変更しました');
       },
       onError: (errors) => {
@@ -52,7 +51,7 @@ export function useCategoryManagement() {
     });
   }
 
-  function handleCategoryDelete(id: number) {
+  function remove(id: number) {
     router.delete(admin.categories.destroy.url(id), {
       onSuccess: () => {
         toast.success('カテゴリを削除しました');
@@ -66,13 +65,13 @@ export function useCategoryManagement() {
   return {
     newName,
     setNewName,
-    editingCategoryId: editingId,
-    editingCategoryName: editingName,
-    setEditingCategoryName: setEditingName,
-    handleCategoryAdd,
-    handleCategoryEdit,
-    handleCategoryEditCancel,
-    handleCategoryUpdate,
-    handleCategoryDelete,
+    editingId,
+    editingName,
+    setEditingName,
+    add,
+    edit,
+    cancelEdit,
+    update,
+    remove,
   };
 }

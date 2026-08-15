@@ -1,12 +1,14 @@
 import { KeyRound, LogOut, Tags } from 'lucide-react';
+import { useAdminAuth } from '@/hooks/admin/useAdminAuth';
 
 type Props = {
   onCategoryManageClick: () => void;
   onPasswordChangeClick: () => void;
-  onLogout: () => void;
 };
 
-export function AdminHeader({ onCategoryManageClick, onPasswordChangeClick, onLogout }: Props) {
+export function AdminHeader({ onCategoryManageClick, onPasswordChangeClick }: Props) {
+  const { handleLogout } = useAdminAuth();
+
   return (
     <header className="bg-surface shadow">
       <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
@@ -27,7 +29,7 @@ export function AdminHeader({ onCategoryManageClick, onPasswordChangeClick, onLo
             <KeyRound size={20} />
           </button>
           <button
-            onClick={onLogout}
+            onClick={handleLogout}
             className="text-ink-muted hover:text-ink"
             title="ログアウト"
           >

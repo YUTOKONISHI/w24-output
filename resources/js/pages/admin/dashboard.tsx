@@ -1,10 +1,11 @@
+import { useState } from 'react';
 import { AdminHeader } from '@/components/admin/AdminHeader';
 import { CategoryManageDialog } from '@/components/admin/CategoryManageDialog';
 import { CategorySidebar } from '@/components/admin/CategorySidebar';
 import { PasswordChangeDialog } from '@/components/admin/PasswordChangeDialog';
 import { ProductTable } from '@/components/admin/ProductTable';
 import { Toaster } from '@/components/ui/sonner';
-import { useAdminDashboard } from '@/hooks/admin/useAdminDashboard';
+import { useCategoryFilter } from '@/hooks/admin/useCategoryFilter';
 import type { AdminCategory, AdminProduct } from '@/types/admin';
 
 type Props = {
@@ -12,67 +13,36 @@ type Props = {
   categories: AdminCategory[];
 };
 
+/**
+ * ページが持つ状態は、複数の子で共有するものだけに留める。
+ *
+ * 絞り込みの選択状態は CategorySidebar と ProductTable の両方が見るため、
+ * 共通の親であるここが持つ。商品とカテゴリの編集状態は使う側が1つずつなので、
+ * ProductTable と CategoryManageDialog がそれぞれ自分でフックを呼ぶ。
+ */
 export default function AdminDashboard({ products, categories }: Props) {
-  const {
-    selectedCategories,
-    toggleCategory,
-    filteredProducts,
-    showPasswordDialog,
-    openPasswordDialog,
-    closePasswordDialog,
-    showCategoryDialog,
-    openCategoryDialog,
-    closeCategoryDialog,
-    handleLogout,
-    newProduct,
-    setNewProduct,
-    showNewRow,
-    setShowNewRow,
-    editingId,
-    editingProduct,
-    setEditingProduct,
-    handleDelete,
-    handleEdit,
-    handleUpdate,
-    handleAdd,
-    newName,
-    setNewName,
-    editingCategoryId,
-    editingCategoryName,
-    setEditingCategoryName,
-    handleCategoryAdd,
-    handleCategoryEdit,
-    handleCategoryEditCancel,
-    handleCategoryUpdate,
-    handleCategoryDelete,
-  } = useAdminDashboard(products, categories);
+  const { selectedCategories, toggleCategory, filteredProducts } = useCategoryFilter(
+    categories,
+    products,
+  );
+  const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
+  const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-canvas">
       <Toaster position="top-center" />
       <AdminHeader
-        onCategoryManageClick={openCategoryDialog}
-        onPasswordChangeClick={openPasswordDialog}
-        onLogout={handleLogout}
+        onCategoryManageClick={() => setCategoryDialogOpen(true)}
+        onPasswordChangeClick={() => setPasswordDialogOpen(true)}
       />
       <PasswordChangeDialog
-        open={showPasswordDialog}
-        onClose={closePasswordDialog}
+        open={passwordDialogOpen}
+        onClose={() => setPasswordDialogOpen(false)}
       />
       <CategoryManageDialog
-        open={showCategoryDialog}
-        onClose={closeCategoryDialog}
+        open={categoryDialogOpen}
+        onClose={() => setCategoryDialogOpen(false)}
         categories={categories}
-        newName={newName}
-        onNewNameChange={setNewName}
-        editingCategoryId={editingCategoryId}
-        editingCategoryName={editingCategoryName}
-        onEditingCategoryNameChange={setEditingCategoryName}
-        onAdd={handleCategoryAdd}
-        onEdit={handleCategoryEdit}
-        onEditCancel={handleCategoryEditCancel}
-        onUpdate={handleCategoryUpdate}
-        onDelete={handleCategoryDelete}
       />
       <main className="max-w-6xl mx-auto px-4 py-8">
         <div className="bg-surface rounded-lg shadow flex">
@@ -81,21 +51,7 @@ export default function AdminDashboard({ products, categories }: Props) {
             selectedCategories={selectedCategories}
             onToggleCategory={toggleCategory}
           />
-          <ProductTable
-            products={filteredProducts}
-            categories={categories}
-            editingId={editingId}
-            editingProduct={editingProduct}
-            showNewRow={showNewRow}
-            newProduct={newProduct}
-            onEdit={handleEdit}
-            onUpdate={handleUpdate}
-            onDelete={handleDelete}
-            onEditingProductChange={setEditingProduct}
-            onNewProductChange={setNewProduct}
-            onAdd={handleAdd}
-            onShowNewRow={() => setShowNewRow(true)}
-          />
+          <ProductTable products={filteredProducts} categories={categories} />
         </div>
       </main>
     </div>

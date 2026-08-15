@@ -4,13 +4,19 @@ import { toast } from 'sonner';
 import admin from '@/routes/admin';
 import type { NewProduct, Product } from '@/types/admin';
 
+const EMPTY_PRODUCT: NewProduct = {
+  name: '',
+  category_id: 0,
+  default_consumption_interval_days: null,
+};
+
 export function useProductManagement() {
-  const [newProduct, setNewProduct] = useState<NewProduct>({ name: '', category_id: 0, default_consumption_interval_days: null });
+  const [newProduct, setNewProduct] = useState<NewProduct>(EMPTY_PRODUCT);
   const [showNewRow, setShowNewRow] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
-  function handleDelete(id: number) {
+  function remove(id: number) {
     router.delete(admin.products.destroy.url(id), {
       onError: (errors) => {
         toast.error(errors.delete ?? '商品削除に失敗しました');
@@ -18,12 +24,12 @@ export function useProductManagement() {
     });
   }
 
-  function handleEdit(product: Product) {
+  function edit(product: Product) {
     setEditingId(product.id);
     setEditingProduct({ ...product });
   }
 
-  function handleUpdate() {
+  function update() {
     if (!editingProduct) {
       return;
     }
@@ -43,7 +49,7 @@ export function useProductManagement() {
     });
   }
 
-  function handleAdd() {
+  function add() {
     if (!newProduct.name || newProduct.category_id === 0 || newProduct.default_consumption_interval_days === null) {
       return;
     }
@@ -54,7 +60,7 @@ export function useProductManagement() {
       default_consumption_interval_days: newProduct.default_consumption_interval_days,
     }, {
       onSuccess: () => {
-        setNewProduct({ name: '', category_id: 0, default_consumption_interval_days: null });
+        setNewProduct(EMPTY_PRODUCT);
         setShowNewRow(false);
       },
       onError: () => {
@@ -71,9 +77,9 @@ export function useProductManagement() {
     editingId,
     editingProduct,
     setEditingProduct,
-    handleDelete,
-    handleEdit,
-    handleUpdate,
-    handleAdd,
+    add,
+    edit,
+    update,
+    remove,
   };
 }

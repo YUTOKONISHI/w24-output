@@ -7,39 +7,29 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { useCategoryManagement } from '@/hooks/admin/useCategoryManagement';
 import type { AdminCategory } from '@/types/admin';
 
 type Props = {
   open: boolean;
   onClose: () => void;
   categories: AdminCategory[];
-  newName: string;
-  onNewNameChange: (value: string) => void;
-  editingCategoryId: number | null;
-  editingCategoryName: string;
-  onEditingCategoryNameChange: (value: string) => void;
-  onAdd: () => void;
-  onEdit: (category: AdminCategory) => void;
-  onEditCancel: () => void;
-  onUpdate: () => void;
-  onDelete: (id: number) => void;
 };
 
-export function CategoryManageDialog({
-  open,
-  onClose,
-  categories,
-  newName,
-  onNewNameChange,
-  editingCategoryId,
-  editingCategoryName,
-  onEditingCategoryNameChange,
-  onAdd,
-  onEdit,
-  onEditCancel,
-  onUpdate,
-  onDelete,
-}: Props) {
+export function CategoryManageDialog({ open, onClose, categories }: Props) {
+  const {
+    newName,
+    setNewName,
+    editingId,
+    editingName,
+    setEditingName,
+    add,
+    edit,
+    cancelEdit,
+    update,
+    remove,
+  } = useCategoryManagement();
+
   return (
     <Dialog open={open} onOpenChange={(next) => !next && onClose()}>
       <DialogContent className="sm:max-w-md">
@@ -50,22 +40,22 @@ export function CategoryManageDialog({
         <ul className="divide-y divide-line">
           {categories.map((category) => (
             <li key={category.id} className="py-3">
-              {editingCategoryId === category.id ? (
+              {editingId === category.id ? (
                 <div className="flex items-center gap-2">
                   <Input
-                    value={editingCategoryName}
-                    onChange={(e) => onEditingCategoryNameChange(e.target.value)}
+                    value={editingName}
+                    onChange={(e) => setEditingName(e.target.value)}
                     className="h-8"
                   />
                   <Button
                     type="button"
                     size="sm"
-                    disabled={editingCategoryName.trim() === ''}
-                    onClick={onUpdate}
+                    disabled={editingName.trim() === ''}
+                    onClick={update}
                   >
                     保存
                   </Button>
-                  <Button type="button" size="sm" variant="ghost" onClick={onEditCancel}>
+                  <Button type="button" size="sm" variant="ghost" onClick={cancelEdit}>
                     取消
                   </Button>
                 </div>
@@ -75,7 +65,7 @@ export function CategoryManageDialog({
                   <span className="text-xs text-ink-muted">
                     商品{category.products_count}件
                   </span>
-                  <Button type="button" size="sm" onClick={() => onEdit(category)}>
+                  <Button type="button" size="sm" onClick={() => edit(category)}>
                     変更
                   </Button>
                   <Button
@@ -89,7 +79,7 @@ export function CategoryManageDialog({
                         : undefined
                     }
                     className="text-danger-600 hover:bg-danger-50"
-                    onClick={() => onDelete(category.id)}
+                    onClick={() => remove(category.id)}
                   >
                     削除
                   </Button>
@@ -103,10 +93,10 @@ export function CategoryManageDialog({
           <Input
             placeholder="新しいカテゴリ名"
             value={newName}
-            onChange={(e) => onNewNameChange(e.target.value)}
+            onChange={(e) => setNewName(e.target.value)}
             className="h-8"
           />
-          <Button type="button" size="sm" disabled={newName.trim() === ''} onClick={onAdd}>
+          <Button type="button" size="sm" disabled={newName.trim() === ''} onClick={add}>
             追加
           </Button>
         </div>
