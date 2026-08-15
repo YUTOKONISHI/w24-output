@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import admin from '@/routes/admin';
 
 type Props = {
   open: boolean;
@@ -28,7 +29,7 @@ export function PasswordChangeDialog({ open, onClose }: Props) {
       return;
     }
 
-    router.post('/admin/password', {
+    router.post(admin.adminPassword.url(), {
       password: newPassword,
       password_confirmation: confirmPassword,
     }, {

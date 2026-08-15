@@ -3,11 +3,14 @@ import { Bell, Home, LogOut, Settings } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Toaster } from '@/components/ui/sonner';
 import { useAuth } from '@/hooks/useAuth';
+import { dashboard } from '@/routes';
+import notifications from '@/routes/notifications';
+import settings from '@/routes/settings';
 
 const NAV_ITEMS = [
-  { key: 'dashboard', href: '/app/dashboard', icon: Home, label: 'ダッシュボード' },
-  { key: 'notifications', href: '/app/notifications', icon: Bell, label: '通知' },
-  { key: 'settings', href: '/app/settings', icon: Settings, label: '設定' },
+  { key: 'dashboard', href: dashboard.url(), icon: Home, label: 'ダッシュボード' },
+  { key: 'notifications', href: notifications.index.url(), icon: Bell, label: '通知' },
+  { key: 'settings', href: settings.index.url(), icon: Settings, label: '設定' },
 ] as const;
 
 const HEADER_ITEMS = NAV_ITEMS.filter((item) => item.key !== 'dashboard');

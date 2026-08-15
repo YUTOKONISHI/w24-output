@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/select';
 import { stockFormDefaults, useStockForm } from '@/hooks/useStockForm';
 import type { StockFormValues } from '@/hooks/useStockForm';
+import stockRoutes from '@/routes/stocks';
 import type { StockFormProduct, Stock } from '@/types';
 
 type Props = {
@@ -194,7 +195,7 @@ export default function StockForm({ products, stock }: Props) {
 
             <div className="space-y-3 pt-2">
               <Button asChild variant="secondary" className="w-full">
-                <Link href="/app/stocks">キャンセル</Link>
+                <Link href={stockRoutes.index.url()}>キャンセル</Link>
               </Button>
               <Button type="submit" disabled={isSubmitting} className="w-full">
                 {isSubmitting ? '保存中...' : '保存'}

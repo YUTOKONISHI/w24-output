@@ -12,6 +12,8 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { forgotPassword, register } from '@/routes';
+import login from '@/routes/login';
 
 type LoginForm = {
   email: string;
@@ -26,7 +28,7 @@ export default function Login() {
   function onSubmit(data: LoginForm) {
     setAuthError(null);
 
-    router.post('/app/login', data, {
+    router.post(login.store.url(), data, {
       onError: (err) => {
         if (err.auth_error) {
           setAuthError(err.auth_error);
@@ -85,10 +87,10 @@ export default function Login() {
             {isSubmitting ? 'ログイン中...' : 'ログイン'}
           </Button>
           <div className="flex justify-between text-sm mt-4">
-            <Link href="/app/forgot-password" className="text-primary-700 hover:underline">
+            <Link href={forgotPassword.url()} className="text-primary-700 hover:underline">
               パスワードをお忘れですか？
             </Link>
-            <Link href="/app/register" className="text-primary-700 hover:underline">
+            <Link href={register.url()} className="text-primary-700 hover:underline">
               新規登録はこちら
             </Link>
           </div>

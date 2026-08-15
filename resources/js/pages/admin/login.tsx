@@ -12,6 +12,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import admin from '@/routes/admin';
 
 type LoginForm = {
   name: string;
@@ -26,7 +27,9 @@ export default function AdminLogin() {
   function onSubmit(data: LoginForm) {
     setAuthError(null);
 
-    router.post('/admin/login', data, {
+    // routes/web.php の POST /admin/login には名前が付いていないため Wayfinder が
+    // 生成しない。URL の同じ GET 側の定義を使う。
+    router.post(admin.login.url(), data, {
       onError: (err) => {
         if (err.auth_error) {
           setAuthError(err.auth_error);

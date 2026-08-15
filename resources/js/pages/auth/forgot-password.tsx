@@ -12,6 +12,8 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { login } from '@/routes';
+import password from '@/routes/password';
 
 type ForgotPasswordForm = {
   email: string;
@@ -22,7 +24,7 @@ export default function ForgotPassword() {
   const { isSubmitting } = form.formState;
 
   function onSubmit(data: ForgotPasswordForm) {
-    router.post('/app/forgot-password', data, {
+    router.post(password.email.url(), data, {
       onSuccess: () => toast.success('パスワードリセットメールを送信しました'),
       onError: (err) => {
         if (err.email) {
@@ -57,7 +59,7 @@ export default function ForgotPassword() {
             {isSubmitting ? '送信中...' : 'リセットリンクを送信'}
           </Button>
           <div className="text-sm mt-4">
-            <Link href="/app/login" className="text-primary-700 hover:underline">
+            <Link href={login.url()} className="text-primary-700 hover:underline">
               ログインに戻る
             </Link>
           </div>

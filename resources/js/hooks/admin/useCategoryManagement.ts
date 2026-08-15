@@ -1,6 +1,7 @@
 import { router } from '@inertiajs/react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import admin from '@/routes/admin';
 import type { AdminCategory } from '@/types/admin';
 
 export function useCategoryManagement() {
@@ -13,7 +14,7 @@ export function useCategoryManagement() {
       return;
     }
 
-    router.post('/admin/categories', { name: newName }, {
+    router.post(admin.categories.store.url(), { name: newName }, {
       onSuccess: () => {
         setNewName('');
         toast.success('カテゴリを追加しました');
@@ -39,7 +40,7 @@ export function useCategoryManagement() {
       return;
     }
 
-    router.put(`/admin/categories/${editingId}`, { name: editingName }, {
+    router.put(admin.categories.update.url(editingId), { name: editingName }, {
       onSuccess: () => {
         setEditingId(null);
         setEditingName('');
@@ -52,7 +53,7 @@ export function useCategoryManagement() {
   }
 
   function handleCategoryDelete(id: number) {
-    router.delete(`/admin/categories/${id}`, {
+    router.delete(admin.categories.destroy.url(id), {
       onSuccess: () => {
         toast.success('カテゴリを削除しました');
       },

@@ -2,6 +2,7 @@ import { router } from '@inertiajs/react';
 import { useMemo, useRef } from 'react';
 import type { UseFormSetError, UseFormSetValue } from 'react-hook-form';
 import { toDateInputValue } from '@/lib/date';
+import stocks from '@/routes/stocks';
 import type { Category, Stock, StockFormProduct } from '@/types';
 
 export type StockFormValues = {
@@ -102,14 +103,14 @@ export function useStockForm({ stock, products, categoryId, setValue, setError }
     };
 
     if (stock !== null) {
-      router.put(`/app/stocks/${stock.id}`, payload, { onError: applyErrors });
+      router.put(stocks.update.url(stock.id), payload, { onError: applyErrors });
 
       return;
     }
 
     payload.product_id = Number(values.product_id);
 
-    router.post('/app/stocks', payload, { onError: applyErrors });
+    router.post(stocks.store.url(), payload, { onError: applyErrors });
   }
 
   function remove() {
@@ -121,7 +122,7 @@ export function useStockForm({ stock, products, categoryId, setValue, setError }
       return;
     }
 
-    router.delete(`/app/stocks/${stock.id}`);
+    router.delete(stocks.destroy.url(stock.id));
   }
 
   return {

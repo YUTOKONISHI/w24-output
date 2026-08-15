@@ -13,6 +13,8 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import profile from '@/routes/profile';
+import settings from '@/routes/settings';
 
 type ProfileForm = {
   name: string;
@@ -56,7 +58,7 @@ export default function Profile() {
       payload.password_confirmation = data.password_confirmation;
     }
 
-    router.put('/app/settings/profile', payload, {
+    router.put(profile.update.url(), payload, {
       onSuccess: () => {
         toast.success('保存しました');
 
@@ -177,7 +179,7 @@ export default function Profile() {
 
             <div className="space-y-3 pt-2">
               <Button asChild variant="secondary" className="w-full">
-                <Link href="/app/settings">キャンセル</Link>
+                <Link href={settings.index.url()}>キャンセル</Link>
               </Button>
               <Button type="submit" disabled={isSubmitting} className="w-full">
                 {isSubmitting ? '保存中...' : '保存'}

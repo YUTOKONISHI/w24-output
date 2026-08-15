@@ -11,6 +11,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import password from '@/routes/password';
 
 type ResetPasswordForm = {
   email: string;
@@ -30,7 +31,7 @@ export default function ResetPassword({ token, email }: Props) {
   const { isSubmitting } = form.formState;
 
   function onSubmit(data: ResetPasswordForm) {
-    router.post('/app/reset-password', { ...data, token }, {
+    router.post(password.update.url(), { ...data, token }, {
       onError: (err) => {
         (['email', 'password'] as const).forEach((field) => {
           if (err[field]) {

@@ -1,6 +1,7 @@
 import { router } from '@inertiajs/react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import admin from '@/routes/admin';
 import type { NewProduct, Product } from '@/types/admin';
 
 export function useProductManagement() {
@@ -10,7 +11,7 @@ export function useProductManagement() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
   function handleDelete(id: number) {
-    router.delete(`/admin/products/${id}`, {
+    router.delete(admin.products.destroy.url(id), {
       onError: (errors) => {
         toast.error(errors.delete ?? '商品削除に失敗しました');
       },
@@ -27,7 +28,7 @@ export function useProductManagement() {
       return;
     }
 
-    router.put(`/admin/products/${editingProduct.id}`, {
+    router.put(admin.products.update.url(editingProduct.id), {
       name: editingProduct.name,
       category_id: editingProduct.category_id,
       default_consumption_interval_days: editingProduct.default_consumption_interval_days,
@@ -47,7 +48,7 @@ export function useProductManagement() {
       return;
     }
 
-    router.post('/admin/products', {
+    router.post(admin.products.store.url(), {
       name: newProduct.name,
       category_id: newProduct.category_id,
       default_consumption_interval_days: newProduct.default_consumption_interval_days,
