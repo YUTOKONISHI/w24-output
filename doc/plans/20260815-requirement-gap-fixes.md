@@ -119,3 +119,32 @@
 - **Push通知の実体**。`20260729-pwa-general-user-only.md` のフェーズ2と3。
 - **商品削除がユーザーのストックを巻き込む**。`stocks.product_id` の `cascadeOnDelete` により、管理者が商品を1件消すと全ユーザーのストックが消える。要件が定めていない挙動で、論理削除の導入が要る。
 - **テスト**。`Product::initialConsumptionIntervalDays` の単体テスト（30日÷4人で7、3日÷4人で1、世帯人数 `null` でマスタ値、マスタ値 `null` で `null`、世帯人数1でマスタ値）、`StockController::create` の props、ダッシュボードの並び順、商品登録。フィーチャーテストを書く前に `tests/Pest.php` の `RefreshDatabase` を有効にする必要がある。無効のままだと開発用DBに書き込む。
+
+## 改訂（2026-08-15）
+
+### 削除の方針が決まった
+
+「判断待ち」に挙げていたカテゴリ削除時の外部キーの挙動について、**使用中のものは削除できないようにする**と決まった。この方針は商品にも同じく効く。
+
+| 対象 | 使用中の定義 |
+|---|---|
+| 商品 | 誰かのストックに登録されている |
+| カテゴリ | 商品がぶら下がっている |
+
+これにより「残件」に挙げていた商品の論理削除は不要になった。管理者の削除操作で利用者のデータが消える経路そのものが塞がるため、消えたストックを復元する仕組みを用意する必要がない。
+
+### 3箇所で守る
+
+役割が違うので、どれも省けない。
+
+1. **画面**。使用中の商品は削除ボタンを押せない。`ProductController::index` が `withCount('stocks')` で `stocks_count` を載せ、`ProductTable` がそれを見て `disabled` にする。押せない理由は `title` で出す
+2. **コントローラ**。`destroy` で `stocks()->exists()`（カテゴリは `products()->exists()`）を見て、使用中なら `withErrors(['delete' => ...])` で理由を返す。画面を経由しない要求への備えであり、利用者に理由を伝える経路でもある
+3. **外部キー**。`products.category_id` と `stocks.product_id` を `restrictOnDelete` にする。コンソールやシーダーからの操作も含めた最後の砦
+
+例外を捕まえるのではなくコントローラで事前に判定するのは、`QueryException` のメッセージをそのまま画面に出せないため。
+
+`stocks.user_id` のカスケードは残す。退会したユーザーのストックを残す意味は無く、管理者の操作で消えるものでもない。
+
+### stocks_count は Product 型に持たせない
+
+フロントは `types/admin.ts` に `AdminProduct = Product & { stocks_count: number }` を定義し、管理画面の一覧だけがこの型を使う。`Stock.product` など他の画面の商品にはこの属性が付かない。消費日数の補正で `StockFormProduct` を分けたのと同じ理由である。
