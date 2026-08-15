@@ -5,16 +5,18 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\Stock;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class StockController extends Controller
 {
     /**
      * 購入予定品一覧画面を表示する
      */
-    public function index()
+    public function index(): Response
     {
         $stocks = Stock::with('product.category')->where('user_id', Auth::id())->orderBy('next_purchase_date', 'asc')->get();
 
@@ -26,7 +28,7 @@ class StockController extends Controller
     /**
      * 購入予定品を作成する画面を表示する
      */
-    public function create()
+    public function create(): Response
     {
         return Inertia::render('stocks/form', [
             'products' => $this->productsForForm(),
@@ -37,7 +39,7 @@ class StockController extends Controller
     /**
      * 購入予定品を編集する画面を表示する
      */
-    public function edit(Stock $stock)
+    public function edit(Stock $stock): Response
     {
         abort_if($stock->user_id !== Auth::id(), 403);
 
@@ -50,7 +52,7 @@ class StockController extends Controller
     /**
      * 購入予定品を作成する
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $request->validate([
             'product_id' => 'required|exists:products,id',
@@ -73,7 +75,7 @@ class StockController extends Controller
     /**
      * 購入予定品を更新する
      */
-    public function update(Request $request, Stock $stock)
+    public function update(Request $request, Stock $stock): RedirectResponse
     {
         abort_if($stock->user_id !== Auth::id(), 403);
 
@@ -95,7 +97,7 @@ class StockController extends Controller
     /**
      * 購入予定品を削除する
      */
-    public function destroy(Stock $stock)
+    public function destroy(Stock $stock): RedirectResponse
     {
         abort_if($stock->user_id !== Auth::id(), 403);
 

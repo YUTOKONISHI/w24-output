@@ -21,11 +21,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Fillable('category_id', 'name', 'default_consumption_interval_days', 'created_by', 'updated_by')]
 class Product extends Model
 {
+    /** @return BelongsTo<Category, $this> */
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }
 
+    /** @return HasMany<Stock, $this> */
     public function stocks(): HasMany
     {
         return $this->hasMany(Stock::class);

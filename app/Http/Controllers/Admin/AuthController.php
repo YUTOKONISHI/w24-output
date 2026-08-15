@@ -3,17 +3,19 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class AuthController extends Controller
 {
     /**
      * ログイン画面を表示する
      */
-    public function showLogin()
+    public function showLogin(): Response
     {
         return Inertia::render('admin/login');
     }
@@ -21,7 +23,7 @@ class AuthController extends Controller
     /**
      * ログインする
      */
-    public function login(Request $request)
+    public function login(Request $request): RedirectResponse
     {
         $credentials = $request->validate([
             'name' => ['required'],
@@ -42,7 +44,7 @@ class AuthController extends Controller
     /**
      * ログアウトする
      */
-    public function logout(Request $request)
+    public function logout(Request $request): RedirectResponse
     {
         Auth::guard('admin')->logout();
         $request->session()->invalidate();
@@ -54,7 +56,7 @@ class AuthController extends Controller
     /**
      * 管理者パスワードを更新する
      */
-    public function updateAdminPassword(Request $request)
+    public function updateAdminPassword(Request $request): RedirectResponse
     {
         $request->validate([
             'password' => ['required', 'confirmed', 'min:8'],
