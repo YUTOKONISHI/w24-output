@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('category_id')->constrained()->cascdadeOnDelete();
+            $table->foreignId('category_id')->constrained()->restrictOnDelete();
             $table->string('name');
             $table->integer('default_consumption_interval_days')->nullable();
             $table->bigInteger('created_by')->nullable();

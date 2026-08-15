@@ -62,6 +62,10 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category)
     {
+        if ($category->products()->exists()) {
+            return back()->withErrors(['delete' => 'このカテゴリは商品に登録されているため削除できません']);
+        }
+
         $category->delete();
 
         return back();

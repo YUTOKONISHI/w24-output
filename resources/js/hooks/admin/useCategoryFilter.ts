@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import type { Category, Product } from '@/types/admin';
+import type { AdminProduct, Category } from '@/types/admin';
 
-export function useCategoryFilter(categories: Category[], products: Product[]) {
+export function useCategoryFilter(categories: Category[], products: AdminProduct[]) {
   const [selectedCategories, setSelectedCategories] = useState<number[]>(
     categories.map((category) => category.id),
   );

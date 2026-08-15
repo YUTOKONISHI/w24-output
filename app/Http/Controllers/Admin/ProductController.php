@@ -16,7 +16,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::orderBy('created_at', 'desc')->get();
+        $products = Product::withCount('stocks')->orderBy('created_at', 'desc')->get();
         $categories = Category::orderBy('name', 'asc')->get();
 
         return Inertia::render('admin/dashboard', [
@@ -73,6 +73,10 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
+        if ($product->stocks()->exists()) {
+            return back()->withErrors(['delete' => 'この商品は利用者のストックに登録されているため削除できません']);
+        }
+
         $product->delete();
 
         return back();

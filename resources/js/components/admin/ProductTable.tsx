@@ -1,8 +1,8 @@
 import type { Dispatch, SetStateAction } from 'react';
-import type { Category, NewProduct, Product } from '@/types/admin';
+import type { AdminProduct, Category, NewProduct, Product } from '@/types/admin';
 
 type Props = {
-  products: Product[];
+  products: AdminProduct[];
   categories: Category[];
   editingId: number | null;
   editingProduct: Product | null;
@@ -143,8 +143,14 @@ export function ProductTable({
                       変更
                     </button>
                     <button
+                      disabled={product.stocks_count > 0}
+                      title={
+                        product.stocks_count > 0
+                          ? '利用者のストックに登録されているため削除できません'
+                          : undefined
+                      }
                       onClick={() => onDelete(product.id)}
-                      className="border border-danger-600 text-danger-600 text-sm px-4 py-1 rounded-full hover:bg-danger-50"
+                      className="border border-danger-600 text-danger-600 text-sm px-4 py-1 rounded-full hover:bg-danger-50 disabled:border-disabled disabled:text-ink-muted disabled:cursor-not-allowed disabled:hover:bg-transparent"
                     >
                       削除
                     </button>

@@ -11,8 +11,8 @@ export function useProductManagement() {
 
   function handleDelete(id: number) {
     router.delete(`/admin/products/${id}`, {
-      onError: () => {
-        toast.error('商品削除に失敗しました');
+      onError: (errors) => {
+        toast.error(errors.delete ?? '商品削除に失敗しました');
       },
     });
   }
