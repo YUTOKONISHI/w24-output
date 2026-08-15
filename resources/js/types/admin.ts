@@ -17,6 +17,10 @@ export type Product = {
  * stocks_count は ProductController::index が withCount で載せる。他の画面の
  * 商品には付かないので、Product 自体には持たせない。
  */
+export type AdminCategory = Category & {
+  products_count: number;
+};
+
 export type AdminProduct = Product & {
   stocks_count: number;
 };

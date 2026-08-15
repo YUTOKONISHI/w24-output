@@ -1,16 +1,24 @@
-import { KeyRound, LogOut } from 'lucide-react';
+import { KeyRound, LogOut, Tags } from 'lucide-react';
 
 type Props = {
+  onCategoryManageClick: () => void;
   onPasswordChangeClick: () => void;
   onLogout: () => void;
 };
 
-export function AdminHeader({ onPasswordChangeClick, onLogout }: Props) {
+export function AdminHeader({ onCategoryManageClick, onPasswordChangeClick, onLogout }: Props) {
   return (
     <header className="bg-surface shadow">
       <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
         <h1 className="text-xl font-bold text-ink">マスタ画面</h1>
         <div className="flex items-center gap-4">
+          <button
+            onClick={onCategoryManageClick}
+            className="text-ink-muted hover:text-ink"
+            title="カテゴリ管理"
+          >
+            <Tags size={20} />
+          </button>
           <button
             onClick={onPasswordChangeClick}
             className="text-ink-muted hover:text-ink"

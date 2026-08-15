@@ -6,29 +6,17 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Inertia\Inertia;
+use Illuminate\Validation\Rule;
 
 class CategoryController extends Controller
 {
-    /**
-     * カテゴリ一覧画面を表示する
-     */
-    public function index()
-    {
-        $categories = Category::orderBy('created_at', 'desc')->get();
-
-        return Inertia::render('admin/dashboard', [
-            'categories' => $categories,
-        ]);
-    }
-
     /**
      * カテゴリを作成する
      */
     public function store(Request $request)
     {
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255', Rule::unique('categories')],
         ]);
 
         Category::create([
@@ -46,7 +34,7 @@ class CategoryController extends Controller
     public function update(Request $request, Category $category)
     {
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255', Rule::unique('categories')->ignore($category->id)],
         ]);
 
         $category->update([

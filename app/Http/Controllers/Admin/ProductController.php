@@ -17,7 +17,7 @@ class ProductController extends Controller
     public function index()
     {
         $products = Product::withCount('stocks')->orderBy('created_at', 'desc')->get();
-        $categories = Category::orderBy('name', 'asc')->get();
+        $categories = Category::withCount('products')->orderBy('name', 'asc')->get();
 
         return Inertia::render('admin/dashboard', [
             'products' => $products,
