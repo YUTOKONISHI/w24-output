@@ -1,9 +1,9 @@
 import { Link } from '@inertiajs/react';
 import { ChevronRight, Plus } from 'lucide-react';
-import { AppShell } from '@/components/layout/AppShell';
-import { formatDate } from '@/lib/date';
+import type { Stock } from '@/features/stock/types';
 import stockRoutes from '@/routes/stocks';
-import type { Stock } from '@/types';
+import { AppShell } from '@/shared/layouts/AppShell';
+import { formatDate } from '@/shared/lib/date';
 
 type Props = {
   stocks: Stock[];

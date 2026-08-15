@@ -1,9 +1,10 @@
 import { ja } from 'date-fns/locale';
-import { CategoryIcon } from '@/components/CategoryIcon';
-import { AppShell } from '@/components/layout/AppShell';
-import { Calendar } from '@/components/ui/calendar';
-import { formatDate, formatDateWithWeekday, isToday, toDate } from '@/lib/date';
-import type { Product, Stock } from '@/types';
+import type { Stock } from '@/features/stock/types';
+import { CategoryIcon } from '@/shared/components/CategoryIcon';
+import { Calendar } from '@/shared/components/ui/calendar';
+import { AppShell } from '@/shared/layouts/AppShell';
+import { formatDate, formatDateWithWeekday, isToday, toDate } from '@/shared/lib/date';
+import type { Product } from '@/shared/types/catalog';
 
 type Props = {
   stocks: Stock[];

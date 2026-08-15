@@ -91,6 +91,55 @@ export default [
                 'error',
                 'prefer-top-level',
             ],
+            // 依存の向きを pages → features → shared の一方向に固定する。
+            // features 同士の参照も禁じる。共有したいものは shared に上げる。
+            'import/no-restricted-paths': [
+                'error',
+                {
+                    basePath: import.meta.dirname,
+                    zones: [
+                        {
+                            target: './resources/js/shared',
+                            from: './resources/js/features',
+                            message: 'shared は features を参照できません',
+                        },
+                        {
+                            target: './resources/js/shared',
+                            from: './resources/js/pages',
+                            message: 'shared は pages を参照できません',
+                        },
+                        {
+                            target: './resources/js/features',
+                            from: './resources/js/pages',
+                            message: 'features は pages を参照できません',
+                        },
+                        {
+                            target: './resources/js/features/admin',
+                            from: './resources/js/features',
+                            except: ['./admin'],
+                            message: 'feature をまたぐ参照は禁止です。共有するものは shared に上げてください',
+                        },
+                        {
+                            target: './resources/js/features/auth',
+                            from: './resources/js/features',
+                            except: ['./auth'],
+                            message: 'feature をまたぐ参照は禁止です。共有するものは shared に上げてください',
+                        },
+                        {
+                            target: './resources/js/features/notification',
+                            from: './resources/js/features',
+                            except: ['./notification'],
+                            message: 'feature をまたぐ参照は禁止です。共有するものは shared に上げてください',
+                        },
+                        {
+                            target: './resources/js/features/stock',
+                            from: './resources/js/features',
+                            except: ['./stock'],
+                            message: 'feature をまたぐ参照は禁止です。共有するものは shared に上げてください',
+                        },
+                    ],
+                },
+            ],
         },
     },
     {
@@ -114,7 +163,7 @@ export default [
             'tailwind.config.js',
             'vite.config.ts',
             'resources/js/actions/**',
-            'resources/js/components/ui/*',
+            'resources/js/shared/components/ui/*',
             'resources/js/routes/**',
             'resources/js/wayfinder/**',
         ],

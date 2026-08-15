@@ -1,8 +1,10 @@
-import { Link, router } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import { AuthCard } from '@/components/AuthCard';
-import { Button } from '@/components/ui/button';
+import { requestPasswordReset } from '@/features/auth/api';
+import { login } from '@/routes';
+import { AuthCard } from '@/shared/components/AuthCard';
+import { Button } from '@/shared/components/ui/button';
 import {
   Form,
   FormControl,
@@ -10,10 +12,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { login } from '@/routes';
-import password from '@/routes/password';
+} from '@/shared/components/ui/form';
+import { Input } from '@/shared/components/ui/input';
 
 type ForgotPasswordForm = {
   email: string;
@@ -24,7 +24,7 @@ export default function ForgotPassword() {
   const { isSubmitting } = form.formState;
 
   function onSubmit(data: ForgotPasswordForm) {
-    router.post(password.email.url(), data, {
+    requestPasswordReset(data.email, {
       onSuccess: () => toast.success('パスワードリセットメールを送信しました'),
       onError: (err) => {
         if (err.email) {

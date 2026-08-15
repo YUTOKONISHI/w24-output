@@ -1,7 +1,10 @@
 import { Link } from '@inertiajs/react';
 import { useForm, useWatch } from 'react-hook-form';
-import { AppShell } from '@/components/layout/AppShell';
-import { Button } from '@/components/ui/button';
+import { stockFormDefaults, useStockForm } from '@/features/stock/hooks/useStockForm';
+import type { StockFormValues } from '@/features/stock/hooks/useStockForm';
+import type { Stock, StockFormProduct } from '@/features/stock/types';
+import stockRoutes from '@/routes/stocks';
+import { Button } from '@/shared/components/ui/button';
 import {
   Form,
   FormControl,
@@ -10,19 +13,16 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+} from '@/shared/components/ui/form';
+import { Input } from '@/shared/components/ui/input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { stockFormDefaults, useStockForm } from '@/hooks/useStockForm';
-import type { StockFormValues } from '@/hooks/useStockForm';
-import stockRoutes from '@/routes/stocks';
-import type { StockFormProduct, Stock } from '@/types';
+} from '@/shared/components/ui/select';
+import { AppShell } from '@/shared/layouts/AppShell';
 
 type Props = {
   products: StockFormProduct[];

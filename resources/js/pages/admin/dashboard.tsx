@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { AdminHeader } from '@/components/admin/AdminHeader';
-import { CategoryManageDialog } from '@/components/admin/CategoryManageDialog';
-import { CategorySidebar } from '@/components/admin/CategorySidebar';
-import { PasswordChangeDialog } from '@/components/admin/PasswordChangeDialog';
-import { ProductTable } from '@/components/admin/ProductTable';
-import { Toaster } from '@/components/ui/sonner';
-import { useCategoryFilter } from '@/hooks/admin/useCategoryFilter';
-import type { AdminCategory, AdminProduct } from '@/types/admin';
+import { AdminHeader } from '@/features/admin/components/AdminHeader';
+import { CategoryManageDialog } from '@/features/admin/components/CategoryManageDialog';
+import { CategorySidebar } from '@/features/admin/components/CategorySidebar';
+import { PasswordChangeDialog } from '@/features/admin/components/PasswordChangeDialog';
+import { ProductTable } from '@/features/admin/components/ProductTable';
+import { useCategoryFilter } from '@/features/admin/hooks/useCategoryFilter';
+import type { AdminCategory, AdminProduct } from '@/features/admin/types';
+import { Toaster } from '@/shared/components/ui/sonner';
 
 type Props = {
   products: AdminProduct[];

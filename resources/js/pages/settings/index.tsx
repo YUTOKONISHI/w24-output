@@ -1,8 +1,8 @@
 import { Link } from '@inertiajs/react';
 import { ChevronRight, Package, User } from 'lucide-react';
-import { AppShell } from '@/components/layout/AppShell';
 import profile from '@/routes/profile';
 import stocks from '@/routes/stocks';
+import { AppShell } from '@/shared/layouts/AppShell';
 
 const MENU_ITEMS = [
   { href: profile.edit.url(), icon: User, label: '個人情報の変更' },

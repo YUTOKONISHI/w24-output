@@ -1,8 +1,9 @@
 import { router } from '@inertiajs/react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { AuthCard } from '@/components/AuthCard';
-import { Button } from '@/components/ui/button';
+import admin from '@/routes/admin';
+import { AuthCard } from '@/shared/components/AuthCard';
+import { Button } from '@/shared/components/ui/button';
 import {
   Form,
   FormControl,
@@ -10,9 +11,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import admin from '@/routes/admin';
+} from '@/shared/components/ui/form';
+import { Input } from '@/shared/components/ui/input';
 
 type LoginForm = {
   name: string;

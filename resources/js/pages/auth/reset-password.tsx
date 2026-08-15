@@ -1,7 +1,7 @@
-import { router } from '@inertiajs/react';
 import { useForm } from 'react-hook-form';
-import { AuthCard } from '@/components/AuthCard';
-import { Button } from '@/components/ui/button';
+import { resetPassword } from '@/features/auth/api';
+import { AuthCard } from '@/shared/components/AuthCard';
+import { Button } from '@/shared/components/ui/button';
 import {
   Form,
   FormControl,
@@ -9,9 +9,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import password from '@/routes/password';
+} from '@/shared/components/ui/form';
+import { Input } from '@/shared/components/ui/input';
 
 type ResetPasswordForm = {
   email: string;
@@ -31,7 +30,7 @@ export default function ResetPassword({ token, email }: Props) {
   const { isSubmitting } = form.formState;
 
   function onSubmit(data: ResetPasswordForm) {
-    router.post(password.update.url(), { ...data, token }, {
+    resetPassword({ ...data, token }, {
       onError: (err) => {
         (['email', 'password'] as const).forEach((field) => {
           if (err[field]) {

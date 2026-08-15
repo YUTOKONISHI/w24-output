@@ -1,8 +1,9 @@
 import { Link, router, usePage } from '@inertiajs/react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import { AppShell } from '@/components/layout/AppShell';
-import { Button } from '@/components/ui/button';
+import profile from '@/routes/profile';
+import settings from '@/routes/settings';
+import { Button } from '@/shared/components/ui/button';
 import {
   Form,
   FormControl,
@@ -11,10 +12,9 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import profile from '@/routes/profile';
-import settings from '@/routes/settings';
+} from '@/shared/components/ui/form';
+import { Input } from '@/shared/components/ui/input';
+import { AppShell } from '@/shared/layouts/AppShell';
 
 type ProfileForm = {
   name: string;

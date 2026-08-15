@@ -1,14 +1,7 @@
 import { useState } from 'react';
-import { AppShell } from '@/components/layout/AppShell';
-import { formatDate } from '@/lib/date';
-
-type NotificationLog = {
-  id: number;
-  title: string;
-  description: string;
-  status: string;
-  created_at: string;
-}
+import type { NotificationLog } from '@/features/notification/types';
+import { AppShell } from '@/shared/layouts/AppShell';
+import { formatDate } from '@/shared/lib/date';
 
 type Props = {
   notifications: NotificationLog[];
