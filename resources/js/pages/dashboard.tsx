@@ -1,4 +1,5 @@
 import { ja } from 'date-fns/locale';
+import { CategoryIcon } from '@/components/CategoryIcon';
 import { AppShell } from '@/components/layout/AppShell';
 import { Calendar } from '@/components/ui/calendar';
 import type { Product, Stock } from '@/types';
@@ -6,6 +7,20 @@ import type { Product, Stock } from '@/types';
 type Props = {
   stocks: Stock[];
   products: Product[];
+};
+
+const CALENDAR_CLASS_NAMES = {
+  root: 'w-full',
+  weekdays: 'flex [&>th:first-child]:text-danger-600 [&>th:last-child]:text-info-600',
+  day: 'relative aspect-square w-full p-0 flex items-center justify-center',
+  today:
+    '[&[data-today]]:rounded-full [&[data-today]]:bg-primary-600 [&[data-today]]:text-white',
+};
+
+const CALENDAR_MODIFIER_CLASS_NAMES = {
+  purchase: 'rounded-md outline-2 -outline-offset-2 outline-primary-600',
+  sunday: 'text-danger-600 [&[data-outside]]:text-ink-muted',
+  saturday: 'text-info-600 [&[data-outside]]:text-ink-muted',
 };
 
 export default function Dashboard({ stocks }: Props) {
@@ -19,9 +34,12 @@ export default function Dashboard({ stocks }: Props) {
     return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}(${['日', '月', '火', '水', '木', '金', '土'][date.getDay()]})`;
   };
 
+  const formatShortDate = (value: string) => value.slice(0, 10).replace(/-/g, '/');
+
   const todayStocks = stocks.filter((s) => {
     const d = new Date(s.next_purchase_date);
     const today = new Date();
+
     return (
       d.getFullYear() === today.getFullYear() &&
       d.getMonth() === today.getMonth() &&
@@ -56,11 +74,17 @@ export default function Dashboard({ stocks }: Props) {
       </div>
 
       <div className="md:grid md:grid-cols-2 md:gap-8">
-        <div className="mb-8 md:mb-0 bg-surface rounded-lg border border-line p-4 flex justify-center">
+        <div className="mb-8 md:mb-0 bg-surface rounded-lg border border-line p-4">
           <Calendar
             locale={ja}
-            modifiers={{ purchase: purchaseDates }}
-            modifiersClassNames={{ purchase: 'bg-primary-600 text-white rounded-full' }}
+            className="w-full p-0"
+            classNames={CALENDAR_CLASS_NAMES}
+            modifiers={{
+              purchase: purchaseDates,
+              sunday: { dayOfWeek: [0] },
+              saturday: { dayOfWeek: [6] },
+            }}
+            modifiersClassNames={CALENDAR_MODIFIER_CLASS_NAMES}
           />
         </div>
 
@@ -75,9 +99,14 @@ export default function Dashboard({ stocks }: Props) {
                   key={stock.id}
                   className="bg-surface border border-line rounded-lg p-4"
                 >
-                  <p className="text-2xl mb-3">🐷</p>
+                  <CategoryIcon
+                    category={stock.product.category?.name}
+                    className="text-primary-600 mb-3"
+                  />
                   <p className="text-sm font-medium text-ink">{stock.product.name}</p>
-                  <div className="mt-2 h-0.5 bg-line rounded" />
+                  <p className="text-xs text-ink-muted mt-2">
+                    次回 {formatShortDate(stock.next_purchase_date)}
+                  </p>
                 </div>
               ))}
             </div>

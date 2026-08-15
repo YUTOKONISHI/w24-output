@@ -18,6 +18,7 @@ export default function Notifications({ notifications }: Props) {
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
+
     return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}`;
   }
 
@@ -30,11 +31,14 @@ export default function Notifications({ notifications }: Props) {
         <div className="flex justify-between items-center">
           <span className="text-sm text-ink">通知を有効にする</span>
           <button
+            type="button"
+            role="switch"
+            aria-checked={enabled}
             onClick={() => setEnabled(!enabled)}
-            className={`relative w-12 h-6 rounded-full transition-colors ${enabled ? 'bg-primary-600' : 'bg-line'}`}
+            className={`relative w-12 h-6 rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 ${enabled ? 'bg-primary-600' : 'bg-line-strong'}`}
           >
             <span
-              className={`absolute top-1 w-4 h-4 bg-surface rounded-full transition-transform ${enabled ? 'translate-x-7' : 'translate-x-1'}`}
+              className={`absolute top-1 left-1 w-4 h-4 bg-surface rounded-full shadow-sm transition-transform ${enabled ? 'translate-x-6' : 'translate-x-0'}`}
             />
           </button>
         </div>

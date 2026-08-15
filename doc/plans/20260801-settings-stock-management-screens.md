@@ -842,3 +842,318 @@ max(1, floor(マスタ値 ÷ 世帯人数))
 - 既に登録済みの商品を、ストック追加画面でもう一度選んで保存 → 商品名欄に「この商品は既に登録されています」が出て、一覧に2件目ができない
 - ストック編集画面で商品名のプルダウンが `disabled` になっており、現在の商品名が読める状態で表示されている
 
+---
+
+# 改訂（2026-08-01）：`20260729` フェーズ1の適用に合わせてパスを `/app/*` に寄せる
+
+`20260729-pwa-general-user-only.md` のフェーズ1が適用され、一般ユーザー画面が `/app/*` に移った。本計画は「現行どおり prefix 無しで作る」という前提で書いていたが、**その前提はもう存在しない**。パスを全面的に合わせる。
+
+適用後の実状は確認済み。`routes/web.php` は `Route::prefix('app')` で `forgot-password` と `auth` グループを囲んでおり、`config/fortify.php` は `prefix` が `app`、`home` が `/app/dashboard`、`redirects.logout` が `/app/login`。`AppShell.tsx` のナビ2項目も `/app/dashboard` `/app/notifications` になっている。`/` は今のところ `Route::redirect('/', '/app/login')` のまま。
+
+## 初版から無効になる記述
+
+| 箇所 | 扱い |
+|---|---|
+| 「スコープ」表のルート6本すべて | 無効。下の表に置き換える |
+| 「送信ペイロード」表の宛先（`POST /stocks` 等）と、改訂で置き換えた `PUT /settings/profile` | 無効。すべて `/app` 配下になる |
+| `AppShell.tsx` の差分にある `href: '/settings'` | `/app/settings` になる。ただし下の「Wayfinder に寄せる」により、実際は文字列を書かない |
+| 各ページ節に書いた `<Link href="/settings/profile">` `/stocks` `/stocks/create` 等のリテラル | 同上 |
+| 「バックエンド実装指標」の追加ルート一覧と、改訂で足した `PUT /settings/profile` | 無効。下の表に置き換える |
+| 「対象外」節の「`/app/*` へ寄せる際は本計画で追加した5本も一緒に動かすことになる」 | 解消。PWA側が先に済んだので、本計画は最初から `/app` 配下で作る |
+
+## ルートの改訂
+
+新規ルートは `routes/web.php` の `Route::prefix('app')` グループ内、さらに `Route::middleware('auth')` グループの中に置く。**トップページだけは例外で、両方の外に置く**（理由は次節）。
+
+| 画面 / 操作 | パス | ルート名 | コンポーネント |
+|---|---|---|---|
+| トップページ | `GET /` | `welcome` | `welcome` |
+| 設定メニュー | `GET /app/settings` | `settings.index` | `settings/index` |
+| 個人情報の変更 | `GET /app/settings/profile` | `profile.edit` | `settings/profile` |
+| 個人情報の保存 | `PUT /app/settings/profile` | `profile.update` | 無し |
+| ストック管理 | `GET /app/stocks` | `stocks.index` | `stocks/index` |
+| ストック設定（新規） | `GET /app/stocks/create` | `stocks.create` | `stocks/form` |
+| ストック設定（編集） | `GET /app/stocks/{stock}/edit` | `stocks.edit` | `stocks/form` |
+
+**ルート名はこの表のとおりに付けること。** フロントが Wayfinder の生成物を import するので、名前が違うとビルドが通らない。
+
+個人情報の2本を `settings.*` ではなく `profile.*` にしたのは、Wayfinder が名前のドットをディレクトリに写すため。`settings` という名前のルートと `settings.profile` という名前空間を同時に作ると、生成物で `routes/settings` が値とディレクトリの両方になる。設定メニューを `settings.index` にし、個人情報を `profile.*` に分けておけば、この形が起きない。
+
+既存の `stocks.store` / `stocks.update` / `stocks.destroy` と同じ `stocks` 名前空間に `index` / `create` / `edit` が加わる形になる。
+
+## トップページを `/` に置く
+
+`Route::redirect('/', '/app/login')` を `Route::inertia('/', 'welcome')->name('welcome')` に置き換える。**`app` prefix グループの外に置く。**
+
+`public/app/sw.js` の冒頭コメントは「一般ユーザー画面のルートを `/app` 配下から出すと、その画面がスコープ外になって PWA のウィンドウから抜ける。ルートを足すときは `routes/web.php` のグループ内に入れること」と指示している。トップページはこの指示に対する**意図的な例外**であり、次の3点で安全が確認できる。
+
+- インストール済みPWAの `start_url` は `/app/dashboard` なので、アプリのウィンドウが `/` を開くことは無い
+- アプリ内のどの画面からも `/` へのリンクを張らない。ログアウト先も `config/fortify.php` の `redirects.logout` で `/app/login` に固定済み
+- トップページは未ログインのユーザーが検索や共有URLから来る公開ページで、そもそもアプリシェルの一部ではない
+
+「利用開始」ボタンの遷移先は `/app/login`（Wayfinder の `login.url()`）。`/` から `/app/login` への移動はスコープ外からスコープ内への移動なので、ブラウザで開いている限り普通の遷移として動く。判断7（ログイン済みなら Fortify の `RedirectIfAuthenticated` が `/app/dashboard` へ飛ばす）はそのまま有効。
+
+## `app.blade.php` の manifest の条件を反転する
+
+現在の条件は管理画面だけを除いている。
+
+```blade
+@unless (request()->is('admin', 'admin/*'))
+```
+
+このまま `/` にトップページを置くと、**scope が `/app/` の manifest を `/` のドキュメントで出すことになる**。manifest はスコープ外のドキュメントでは採用されず、DevTools に「Page is not in the manifest's scope」の警告が出る。ブラードのコメントが管理画面について書いている状況と同じものが、トップページでも起きる。
+
+除外リストを増やすのではなく、条件を反転して `/app/*` のときだけ出す形にする。
+
+```blade
+@if (request()->is('app/*'))
+```
+
+こうすると、今後 `/app` の外に公開ページを足しても手当てが要らなくなる。管理画面が除かれることも自動的に満たされる。**この変更は本計画の実装に含める**（`AppShell.tsx` と同じく、フロント側の変更として扱う）。
+
+## フロントの参照を Wayfinder に寄せる
+
+新画面のリンクと送信先は、パスの文字列ではなく Wayfinder の生成物を使う。
+
+```ts
+import { index as stocksIndex, create, edit, store, update, destroy } from '@/routes/stocks';
+import { edit as profileEdit, update as profileUpdate } from '@/routes/profile';
+```
+
+理由は、今回の prefix 移行で `login.tsx` `register.tsx` `forgot-password.tsx` `reset-password.tsx` `AppShell.tsx` の5ファイルを手で直す必要があった一方、`logout.url()` を使っていた `useAuth.ts` は無変更で済んだこと。**同じ移行がもう一度あったときに、新画面が巻き込まれない。**
+
+`AppShell.tsx` のナビ2項目（現在 `/app/dashboard` `/app/notifications` がリテラル）も、設定の追加と同時に `dashboard.url()` `notifications.index.url()` に置き換える。`NAV_ITEMS` の `href` はリテラルの合併から `string` になるが、`NavKey` を導出している `key` はリテラルのままなので `active` の型検査は効いたままになる。判断1（`href === null` 分岐の削除）も `string` と `null` の比較として TS2367 になるので、結論は変わらない。
+
+引き換えに、**バックエンドのルートが存在しないとフロントがビルドできなくなる**。Wayfinder の生成は Vite プラグインがルート定義から行うため、名前が無ければ import が解決しない。もっとも「先にバックエンドが必要な最小セット」で `GET` ルートを最初に置く順序は元から変わらないので、新しい制約が増えるわけではない。
+
+## 送信ペイロードの改訂
+
+| 操作 | 宛先 | 本体 |
+|---|---|---|
+| ストック登録 | `POST /app/stocks` | `{ product_id, quantity, consumption_interval_days, next_purchase_date: string \| null }` |
+| ストック更新 | `PUT /app/stocks/{stock}` | `{ quantity, consumption_interval_days, next_purchase_date: string \| null }` |
+| ストック削除 | `DELETE /app/stocks/{stock}` | 無し |
+| 個人情報の保存 | `PUT /app/settings/profile` | `{ name, household_size, current_password, password, password_confirmation }` |
+
+内容は変わらず、宛先だけが `/app` 配下になる。
+
+## 検証の改訂
+
+`20260729` の実装記録にある `curl -sI / → 302 Location: /app/login` は、本計画でトップページを置くと **200 でHTMLが返るようになる**。壊れたのではなく、こちらの変更が意図したものだと分かるようにここに記録しておく。
+
+初版の検証手順のうち、パスを含むものは `/app` 配下に読み替える。あわせて次を足す。
+
+```
+curl -s / | grep -c 'rel="manifest"'                      # → 0（スコープ外なので出さない）
+curl -s http://localhost/app/settings | grep -c 'rel="manifest"'   # → 1
+curl -s http://localhost/admin/login  | grep -c 'rel="manifest"'   # → 0
+```
+
+ブラウザでの確認に次を足す。
+
+- `/` を開いて DevTools のコンソールに manifest のスコープ違反の警告が出ないこと
+- インストール済みPWAのウィンドウで設定からストック管理まで遷移し、**アドレスバーが出ないまま**であること（新画面がすべてスコープ内にあることの確認）
+- 同じウィンドウでログアウトし、`/app/login` に留まってアドレスバーが出ないこと
+
+---
+
+# 改訂（2026-08-01）：トップページも `/app` 配下に置く
+
+直前の改訂ではトップページを `/` に置き、スコープ外であることを承知のうえで例外扱いにしていた。方針を変えて `/app` 配下に入れる。例外が無くなり、`sw.js` のコメントが求めるとおり一般ユーザー画面がすべてスコープ内に揃う。
+
+## パスは `/app/welcome`。`/app` にはできない
+
+`Route::prefix('app')` の中で `Route::inertia('/', 'welcome')` と書くと、登録されるパスは **`/app`** になる。Laravel はルート定義の末尾スラッシュを落とすため、`/app/` という別のルートは作れない。
+
+そして `/app` は**スコープ外**になる。SWのスコープも manifest の `scope` も `/app/` で、どちらのマッチングも「スコープの文字列が対象URLの前方一致になっているか」で決まる。`/app` は `/app/` で始まらないので一致しない。トップページを `/app` に置くと、`/` に置いたときの問題がそのまま移動するだけになる。
+
+末尾スラッシュ付きの `/app/` でアクセスすればスコープ内に入るが、**ユーザーがURLに `/` を付けたかどうかで挙動が変わる**ものを土台にはできない。明示的なサブパスにする。
+
+| 対象 | パス | ルート名 |
+|---|---|---|
+| トップページ | `GET /app/welcome` | `welcome` |
+| ルート | `GET /` | 無し（`Route::redirect('/', '/app/welcome')`） |
+
+`Route::prefix('app')` グループの中、`Route::middleware('auth')` グループの**外**に置く（未ログインで開く公開ページのため）。現在の `Route::redirect('/', '/app/login')` は、リダイレクト先をトップページに変える。
+
+## 直前の改訂から無効になる記述
+
+| 箇所 | 扱い |
+|---|---|
+| 「ルートの改訂」表のトップページの行（`GET /`） | 無効。`GET /app/welcome` に置き換える |
+| 「トップページを `/` に置く」節 全体 | 無効。`sw.js` のコメントに対する例外は無くなり、安全性を3点で確認する説明も不要になる |
+| 「`app.blade.php` の manifest の条件を反転する」節 | **無効。`@unless (request()->is('admin', 'admin/*'))` は現状のまま変えない**（理由は次節） |
+| 検証の `curl -s / \| grep -c 'rel="manifest"'` → 0 | 無効。`/` はリダイレクトでHTMLを返さないため、この確認自体が成立しない |
+| 検証の「`/` を開いて manifest のスコープ違反の警告が出ないこと」 | 無効。同上 |
+
+## `app.blade.php` は変更しない
+
+直前の改訂では、scope が `/app/` の manifest を `/` のドキュメントで出すと DevTools に警告が出るため、条件を `@if (request()->is('app/*'))` に反転するとしていた。
+
+トップページが `/app/welcome` に移ると、この警告は起きない。`/` はリダイレクトを返すだけでHTMLを持たないので manifest のリンクも出ない。反転しても現時点で直る不具合が無く、`/app` の外に公開ページを足す予定も無い。**動いているものを触らない。**
+
+将来 `/app` の外にHTMLを返すページを足すときは、そのとき反転を検討すればよい。
+
+## そのほかへの影響
+
+- **`start_url` は `/app/dashboard` のまま変えない。** インストール済みPWAを開いたときに出したいのはダッシュボードであって、トップページではない。未ログインなら `auth` ミドルウェアが `/app/login` へ回すのも従来どおり
+- **「利用開始」の遷移先は `login.url()`（`/app/login`）のまま。** スコープ内からスコープ内への移動になるので、インストール済みPWAのウィンドウで踏んでもアドレスバーは出ない。`/` に置いていたときはスコープ外からの移動だった
+- **トップページもSWの制御下に入る。** オフラインで開けば `offline.html` が出る。他の一般ユーザー画面と同じ挙動になる
+- **`20260729` の実装記録にある `curl -sI / → 302 Location: /app/login`** は、リダイレクト先が `/app/welcome` に変わる。302 が返る点は変わらないので、直前の改訂に書いた「200 でHTMLが返るようになる」という記述は**無効**
+
+## 検証の改訂
+
+```
+curl -sI http://localhost/                          # → 302 Location: /app/welcome
+curl -sI http://localhost/app/welcome               # → 200
+curl -s  http://localhost/app/welcome | grep -c 'rel="manifest"'   # → 1
+curl -s  http://localhost/admin/login | grep -c 'rel="manifest"'   # → 0
+```
+
+ブラウザでの確認は次に置き換える。
+
+- `/app/welcome` を開き、DevTools のコンソールに manifest のスコープ違反の警告が出ないこと
+- Application → Manifest の表示が `/app/welcome` でも有効なままであること
+- インストール済みPWAのウィンドウで `/app/welcome` を開き、**アドレスバーが出ないこと**。ここから「利用開始」を押して `/app/login` に進んでも出ないこと
+- 同じウィンドウで設定からストック管理まで遷移し、アドレスバーが出ないまま留まること
+- Offline で `/app/welcome` を再読込すると `offline.html` が出ること
+
+---
+
+# 実装記録（2026-08-01）：トップページ完了
+
+スコープ6画面のうちトップページを実装した。残る5画面（設定メニュー、個人情報の変更、ストック管理一覧、ストック設定の新規と編集）には着手していない。
+
+## 変更したファイル
+
+| ファイル | 変更 |
+|---|---|
+| `resources/js/pages/welcome.tsx` | Laravel スターターの内容を全面差し替え。中央寄せ1カラムで、アイコン、キャッチコピー、サービス名、概要2文、「利用開始」を並べた |
+| `routes/web.php` | `Route::inertia('/welcome', 'welcome')->name('welcome')` を `app` prefix グループ内かつ `auth` グループの外に追加。`Route::redirect('/')` の先を `/app/welcome` に変更 |
+
+アイコンは `public/icons/icon-192.png`（PWA用に生成済み）を `rounded-full` で流用した。トップページのために新しい素材は起こしていない。「利用開始」のリンク先はパスを直書きせず `login.url()` を通した。
+
+ルートは `Route::inertia()` で足りたため、コントローラは作っていない。**バックエンド実装指標のうち人間が書くべきものは、この画面では発生していない。**
+
+## 実施した検証と結果
+
+`types:check` は通過。`lint:check` は 42 errors / 2 warnings で基準値から増えておらず、`welcome.tsx` への指摘はゼロ。`npm run build` も成功し `welcome-rX6_P0xF.js` を出力した。
+
+```
+GET /              → 302 Location: /app/welcome
+GET /app/welcome   → 200、"component":"welcome"、welcome-rX6_P0xF.js を参照
+GET /app/login     → 200（Fortify のルートは従来どおり生存）
+rel="manifest" の数   /app/welcome: 1   /admin/login: 0
+```
+
+`route:list` に `GET|HEAD app/welcome → welcome` が出ること、Wayfinder が `resources/js/routes/index.ts` に `url: '/app/welcome'` を生成することも確認した。ブラウザでの目視（レスポンシブ、利用開始の遷移、PWAウィンドウでアドレスバーが出ないこと、manifest の警告が出ないこと）はユーザーが確認し、問題なしとの回答を得ている。
+
+## 環境の修正（この画面とは別件）
+
+`./vendor/bin/sail npm run build` が権限エラーで落ちる状態だった。`public/build/assets` が root 所有で、`sail npm` は uid 1000 の `sail` ユーザーで動くため出力先を空にできない。`20260729` フェーズ1のビルドが `docker compose exec`（root）で実行されたことが原因。
+
+次のコマンドで所有者を揃え、`sail npm run build` が通ることを確認済み。
+
+```
+./vendor/bin/sail exec laravel.test chown -R sail:sail /var/www/html/public/build
+```
+
+以降の検証は本計画の「検証」節に書いたとおり Sail 経由で統一できる。
+
+## 次に着手する画面の順序
+
+残り5画面のうち、**設定メニューだけはバックエンドのコントローラを必要としない**。`GET /app/settings` は props が無く `Route::inertia()` で足りるため、トップページと同じくフロントだけで完結する。
+
+残り4画面は先にバックエンドが要る。
+
+| 画面 | 必要なバックエンド |
+|---|---|
+| 個人情報の変更 | `GET` は `Route::inertia()` で足りるが、保存に `PUT /app/settings/profile` のコントローラが要る |
+| ストック管理一覧 | props（自分のストック一覧）を返すコントローラ |
+| ストック設定（新規・編集） | props（`products` と `stock`）を返すコントローラ。加えて `store` / `update` の `next_purchase_date` の `nullable` 化 |
+
+---
+
+# 実装記録（2026-08-02）：フロントエンド完了
+
+スコープ6画面のうち残り5画面と共通部品を実装した。**フロントエンドは全画面が揃った。** バックエンドには着手していないため、疎通確認は行っていない。
+
+## パス参照の方針を変更した
+
+改訂で「新画面のリンクと送信先は Wayfinder の生成物を使う」と決めていたが、**取り下げてパスを直書きした**。
+
+Wayfinder はルート定義から型を生成するため、まだ存在しないルートは import が解決せずビルドが落ちる。バックエンドを待たずにフロントを書く以上、この方針は成立しない。`routes/web.php` には触っていない。
+
+差し替えを忘れないよう、直書きしている4ファイル（`useStockForm.ts` `settings/index.tsx` `settings/profile.tsx` `stocks/index.tsx` `stocks/form.tsx`）の冒頭コメントに `TODO: バックエンドのルートが入ったら Wayfinder の生成物に差し替える` を残した。`AppShell.tsx` の既存2項目も直書きのままにして、書き味を揃えている。
+
+**`welcome.tsx` だけは `login.url()` を使っている**（ルートが既にあるため）。ここは差し替え不要。
+
+## 変更したファイル
+
+**型**
+
+| ファイル | 変更 |
+|---|---|
+| `resources/js/types/stock.ts` | 新規。`Stock` のみ export し、`Product` は `./admin` から借りる |
+| `resources/js/types/index.ts` | `export type * from './stock'` を追加 |
+| `resources/js/types/auth.ts` | `household_size: number \| null` を追加 |
+| `resources/js/types/admin.ts` | `default_consumption_interval_days` を `number \| null` に訂正 |
+
+**共通部品**
+
+| ファイル | 変更 |
+|---|---|
+| `resources/js/components/SelectField.tsx` | 新規。`FormField` と対になる select |
+| `resources/js/components/layout/AppShell.tsx` | 設定の `href` を `/app/settings` に。`href === null` 分岐（非活性ボタン）を削除 |
+| `resources/js/hooks/useStockForm.ts` | 新規。初期値、商品選択時の消費日数セット、送信、削除 |
+
+**画面**
+
+| ファイル | 変更 |
+|---|---|
+| `resources/js/pages/settings/index.tsx` | 新規。設定メニュー |
+| `resources/js/pages/settings/profile.tsx` | 新規。個人情報の変更 |
+| `resources/js/pages/stocks/index.tsx` | 新規。ストック管理一覧 |
+| `resources/js/pages/stocks/form.tsx` | 新規。ストック設定（新規と編集の兼用） |
+| `resources/js/pages/dashboard.tsx` | ローカル型定義3つを削除して `@/types` からの import に置換。描画は変更なし |
+
+判断1のとおり `href === null` 分岐は削除が必須だった。残したまま `href` に `/app/settings` を与えると TS2367 で `types:check` が落ちる。
+
+## 実装中の判断
+
+**`watch()` ではなく `getValues()` を使った。** 当初は `register.tsx` の前例に倣って一致チェックに `watch('password')` を書いたが、`react-hooks/incompatible-library` の警告が出て件数が2から3に増えた。React Compiler が「メモ化できない」としてコンポーネントの最適化を丸ごと諦めるという内容。検証時点の値が取れれば足りるので、安定した `getValues` に変えて警告を消した。
+
+既存の `register.tsx` と `reset-password.tsx` が持つ警告2件も同じ原因で、同じ直し方で消せる。本計画の対象外なので触っていないが、**別タスクとして起票してよい**。
+
+## 実施した検証と結果
+
+`types:check` は通過。`usePage().props.auth` の型が `global.d.ts` の `sharedPageProps` 宣言から解決されることも確認した（この書き方は本コードベースで初めて使う）。
+
+`lint:check` は 42 errors / 2 warnings で基準値から増えておらず、**新規5ファイルへの指摘はゼロ**。`dashboard.tsx` の既存2件は行番号が 47/53 から 31/37 にずれただけで、内容は未変更コードへの指摘のまま。
+
+`npm run build` は成功し、4画面ぶんのチャンクが出力された。
+
+```
+settings-zLYUthC6.js   settings/index.tsx
+profile-CP02PB-2.js    settings/profile.tsx
+stocks-Ce5IftnS.js     stocks/index.tsx
+form-C5XFZ7Wn.js       stocks/form.tsx
+```
+
+ビルド成果物に意図した文字列が入っていることも確認した。`AppShell` のチャンクに `/app/settings` があり、削除した分岐の `準備中` と `cursor-not-allowed` は消えている。各画面の遷移先と送信先（`/app/settings/profile` `/app/stocks` `/app/stocks/create` `/app/stocks/${id}/edit`）も出力に含まれている。
+
+## 未実施
+
+**画面を開いての確認は一切できていない。** ルートが無いため `/app/settings` 以下はすべて404になる。次のバックエンドが入った時点で、本計画の「検証」節にあるブラウザ確認を実施する必要がある。
+
+| 必要なもの | これが無いと |
+|---|---|
+| `GET /app/settings`（`Route::inertia` で足りる） | 設定メニューに到達できない。ナビの「設定」を押すと404 |
+| `GET /app/settings/profile`（`Route::inertia` で足りる） | 個人情報の変更を開けない |
+| `PUT /app/settings/profile` | 保存が404 |
+| `GET /app/stocks` | 一覧を開けない |
+| `GET /app/stocks/create` / `GET /app/stocks/{stock}/edit` | ストック設定を開けない |
+| `store` / `update` の `next_purchase_date` の `nullable` 化 | 次回購入予定日を空で保存すると422 |
+
+ルート名は改訂の表（`settings.index` / `profile.edit` / `profile.update` / `stocks.index` / `stocks.create` / `stocks.edit`）のとおりに付けること。パスを直書きしている今は名前が違ってもフロントは動くが、Wayfinder への差し替え時に効いてくる。
+
