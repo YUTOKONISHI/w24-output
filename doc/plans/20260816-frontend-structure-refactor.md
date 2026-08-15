@@ -201,3 +201,37 @@ docker compose exec laravel.test npm run lint:check
 - **`pages` 配下への共置**。Inertia はページを `pages` 配下の glob で解決するため、そこに補助ファイルを置くと解決対象に混ざる。`app.tsx` は `@inertiajs/vite` が注入する解決関数に任せており、除外パターンを書く場所がない
 - **`components/ui` の中身への変更**。shadcn の生成物で、`eslint.config.js` も対象外にしている。移動だけを行う
 - **フロントエンドのテスト**。テスト基盤が無い状態で導入すると本計画の範囲を超える。`20260815` の残件に挙がっているフィーチャーテストと合わせて別途判断する
+
+## 改訂（2026-08-16）
+
+1から4を実施した。計画から変えた点と、実施して分かったことを記す。
+
+### `features/auth` にコンポーネントは要らなかった
+
+計画では `features/auth` に `components/` を置く想定だったが、`AuthCard` は一般ユーザーのログイン、新規登録、パスワード関連の4画面に加えて管理者ログイン画面も使う。features をまたぐため `shared/components/` に置いた。結果として `features/auth` は `api.ts` だけになる。
+
+### `shared/types/index.ts` は作らなかった
+
+いったん `auth.ts` と `catalog.ts` を再エクスポートする窓口を置いたが、どこからも参照されなかった。取り込む側が型の出どころを直に書くほうが、どの層の型かが読んで分かる。移動前の `types/index.ts` は `@/types` で全部を1か所から取れるようにするためのもので、層を分けた今は役目がない。
+
+### `NAV_ITEMS` の URL は読み込み時に確定する
+
+`AppShell` と `pages/settings/index.tsx` は、モジュールの最上位で `dashboard.url()` のように呼んで定数配列を組み立てている。Wayfinder の生成物は引数から文字列を組むだけなので、読み込み時に呼んでも問題ない。
+
+### 管理者ログインの POST に名前が無い
+
+`routes/web.php` の `Route::post('/login', [AuthController::class, 'login'])` に名前が付いておらず、Wayfinder が生成しない。URL の同じ GET 側の定義（`admin.login`）を使い、その旨をコメントに残した。ルートに名前を付けて生成させるほうが素直だが、サーバ側の変更になるため本計画では触っていない。
+
+### 境界の規則が実際に効くことを確かめた
+
+`import/no-restricted-paths` を入れたあと、`shared` から `features` を取り込む行と、`features/stock` から `features/admin` を取り込む行を一時的に足して、どちらも lint で落ちることを確認してから戻した。規則を書いただけで効いていない状態を避けるため。
+
+### 検証
+
+各段階の後に `npm run types:check` と `npm run lint:check`、4の後に `npm run build` を実行し、いずれも通っている。移動に伴う取り込み順の指摘は `npm run lint`（`--fix` 付き）で直した。
+
+### 残件
+
+- **`useStockForm` の引数**。`setValue` と `setError` を呼び出し側から受け取っており、react-hook-form のフォーム実体に依存している。フックの中でフォームを作って返す形にすればページから5行減るが、`useWatch` の扱いを含めて設計が変わるため今回は触っていない
+- **Push通知画面の通知設定**。`enabled` の `useState` はどこにも送っておらず、画面の中だけで完結している。`20260729-pwa-general-user-only.md` のフェーズ2で扱う
+- **`features/notification`**。今は `types.ts` だけで、画面の状態もサーバ呼び出しも無い。Push通知の実装が入った時点で `api.ts` と `hooks/` が埋まる
