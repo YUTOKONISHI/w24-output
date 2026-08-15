@@ -1,7 +1,7 @@
 import { router } from '@inertiajs/react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import admin from '@/routes/admin';
+import adminLogin from '@/routes/admin/login';
 import { AuthCard } from '@/shared/components/AuthCard';
 import { Button } from '@/shared/components/ui/button';
 import {
@@ -27,9 +27,7 @@ export default function AdminLogin() {
   function onSubmit(data: LoginForm) {
     setAuthError(null);
 
-    // routes/web.php の POST /admin/login には名前が付いていないため Wayfinder が
-    // 生成しない。URL の同じ GET 側の定義を使う。
-    router.post(admin.login.url(), data, {
+    router.post(adminLogin.store.url(), data, {
       onError: (err) => {
         if (err.auth_error) {
           setAuthError(err.auth_error);
