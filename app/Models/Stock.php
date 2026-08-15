@@ -20,9 +20,23 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable('user_id', 'product_id', 'quantity', 'consumption_interval_days', 'next_purchase_date')]
 class Stock extends Model
 {
+    /**
+     * 次回購入予定日を日付として扱う。
+     * 時刻を持たない日付なので Y-m-d で書き出す。フロントは slice(0, 10) と
+     * new Date() で受けており、どちらもこの書式で従来どおり動く。
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'next_purchase_date' => 'date:Y-m-d',
+        ];
+    }
+
     public function user(): BelongsTo
     {
-        return $this->belognsTo(User::class);
+        return $this->belongsTo(User::class);
     }
 
     public function product(): BelongsTo
