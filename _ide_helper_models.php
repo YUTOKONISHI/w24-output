@@ -16,8 +16,8 @@ namespace App\Models{
  * @property int $id
  * @property string $name
  * @property string $password
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property \Carbon\CarbonImmutable $created_at
+ * @property \Carbon\CarbonImmutable $updated_at
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Admin newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Admin newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Admin query()
@@ -34,10 +34,10 @@ namespace App\Models{
 /**
  * @property int $id
  * @property string $name
- * @property int|null $created_by
- * @property int|null $updated_by
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property int $created_by
+ * @property int $updated_by
+ * @property \Carbon\CarbonImmutable $created_at
+ * @property \Carbon\CarbonImmutable $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Product> $products
  * @property-read int|null $products_count
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Category newModelQuery()
@@ -60,8 +60,8 @@ namespace App\Models{
  * @property string $title
  * @property string $description
  * @property string $status
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property \Carbon\CarbonImmutable $created_at
+ * @property \Carbon\CarbonImmutable $updated_at
  * @property-read \App\Models\User $user
  * @method static \Illuminate\Database\Eloquent\Builder<static>|NotificationLog newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|NotificationLog newQuery()
@@ -82,11 +82,11 @@ namespace App\Models{
  * @property int $id
  * @property int $category_id
  * @property string $name
- * @property int|null $default_consumption_interval_days
- * @property int|null $created_by
- * @property int|null $updated_by
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property int $default_consumption_interval_days
+ * @property int $created_by
+ * @property int $updated_by
+ * @property \Carbon\CarbonImmutable $created_at
+ * @property \Carbon\CarbonImmutable $updated_at
  * @property-read \App\Models\Category $category
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Stock> $stocks
  * @property-read int|null $stocks_count
@@ -112,10 +112,11 @@ namespace App\Models{
  * @property int $product_id
  * @property int $quantity
  * @property int $consumption_interval_days
- * @property Carbon|null $next_purchase_date
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property \Carbon\CarbonImmutable $next_purchase_date
+ * @property \Carbon\CarbonImmutable $created_at
+ * @property \Carbon\CarbonImmutable $updated_at
  * @property-read \App\Models\Product $product
+ * @property-read \App\Models\User $user
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Stock newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Stock newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Stock query()
@@ -136,12 +137,12 @@ namespace App\Models{
  * @property int $id
  * @property string $name
  * @property string $email
- * @property Carbon|null $email_verified_at
+ * @property \Carbon\CarbonImmutable|null $email_verified_at
  * @property string $password
- * @property int|null $household_size   ← 追加
+ * @property int|null $household_size
  * @property string|null $remember_token
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property \Carbon\CarbonImmutable $created_at
+ * @property \Carbon\CarbonImmutable $updated_at
  * @property string|null $two_factor_secret
  * @property string|null $two_factor_recovery_codes
  * @property string|null $two_factor_confirmed_at

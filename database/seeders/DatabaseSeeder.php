@@ -14,10 +14,6 @@ class DatabaseSeeder extends Seeder
      *
      * 呼ぶ順序に意味がある。カテゴリと商品は created_by に管理者のIDを入れ、
      * 商品はカテゴリを、ストックは商品とユーザーを参照する。
-     *
-     * 各シーダーは firstOrCreate で書いてあるため、二重に実行しても増えない。
-     * 既存のレコードは上書きしないので、まっさらな状態にしたいときは
-     * php artisan migrate:fresh --seed を使う。
      */
     public function run(): void
     {

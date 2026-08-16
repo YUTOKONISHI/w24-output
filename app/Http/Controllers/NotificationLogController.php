@@ -11,9 +11,6 @@ use Inertia\Response;
 
 class NotificationLogController extends Controller
 {
-    /**
-     * 通知ログ画面を表示する
-     */
     public function index(): Response
     {
         $notifications = NotificationLog::where('user_id', Auth::id())->orderBy('created_at', 'desc')->get();
@@ -23,9 +20,6 @@ class NotificationLogController extends Controller
         ]);
     }
 
-    /**
-     * 通知ログを作成する
-     */
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
@@ -44,9 +38,6 @@ class NotificationLogController extends Controller
         return back();
     }
 
-    /**
-     * 通知ログを削除する
-     */
     public function destroy(NotificationLog $notificationLog): RedirectResponse
     {
         abort_if($notificationLog->user_id !== Auth::id(), 403);

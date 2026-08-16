@@ -17,7 +17,8 @@ return new class extends Migration
             $table->text('title');
             $table->text('description');
             $table->text('status');
-            $table->timestamps();
+            $table->timestampTz('created_at')->useCurrent();
+            $table->timestampTz('updated_at')->useCurrent();
         });
     }
 

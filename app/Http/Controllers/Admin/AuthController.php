@@ -11,17 +11,11 @@ use Inertia\Response;
 
 class AuthController extends Controller
 {
-    /**
-     * ログイン画面を表示する
-     */
     public function showLogin(): Response
     {
         return Inertia::render('admin/login');
     }
 
-    /**
-     * ログインする
-     */
     public function login(Request $request): RedirectResponse
     {
         $credentials = $request->validate([
@@ -40,9 +34,6 @@ class AuthController extends Controller
         ]);
     }
 
-    /**
-     * ログアウトする
-     */
     public function logout(Request $request): RedirectResponse
     {
         Auth::guard('admin')->logout();
@@ -52,9 +43,6 @@ class AuthController extends Controller
         return to_route('admin.login');
     }
 
-    /**
-     * 管理者パスワードを更新する
-     */
     public function updateAdminPassword(Request $request): RedirectResponse
     {
         $request->validate([

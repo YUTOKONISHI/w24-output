@@ -12,17 +12,11 @@ use Laravel\Fortify\Contracts\UpdatesUserProfileInformation;
 
 class ProfileController extends Controller
 {
-    /**
-     * プロフィール画面を表示する
-     */
     public function index(): Response
     {
         return Inertia::render('settings/profile');
     }
 
-    /**
-     * プロフィールを更新する
-     */
     public function update(
         Request $request,
         UpdatesUserProfileInformation $updatesProfileInformation,

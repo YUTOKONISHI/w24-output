@@ -13,13 +13,6 @@ type Props = {
   categories: AdminCategory[];
 };
 
-/**
- * ページが持つ状態は、複数の子で共有するものだけに留める。
- *
- * 絞り込みの選択状態は CategorySidebar と ProductTable の両方が見るため、
- * 共通の親であるここが持つ。商品とカテゴリの編集状態は使う側が1つずつなので、
- * ProductTable と CategoryManageDialog がそれぞれ自分でフックを呼ぶ。
- */
 export default function AdminDashboard({ products, categories }: Props) {
   const { selectedCategories, toggleCategory, filteredProducts } = useCategoryFilter(
     categories,

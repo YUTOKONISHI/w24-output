@@ -42,8 +42,8 @@ class StockSeeder extends Seeder
                 [
                     'quantity' => $stock['quantity'],
                     'consumption_interval_days' => $stock['days'],
-                    // toDateString() で時刻を落とす。画面から登録したときも
-                    // StockController::resolveNextPurchaseDate が日付だけを渡す。
+                    // 画面から登録したときも StockController::resolveNextPurchaseDate
+                    // が日付だけを渡す。
                     'next_purchase_date' => now()->addDays($stock['after'])->toDateString(),
                 ],
             );

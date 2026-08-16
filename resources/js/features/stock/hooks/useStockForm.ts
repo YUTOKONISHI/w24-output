@@ -46,13 +46,6 @@ function stockFormDefaults(stock: Stock | null): StockFormValues {
   };
 }
 
-/**
- * ストック設定画面のフォーム。
- *
- * フォームの実体をここで作って返す。初期値の組み立て、カテゴリで絞った商品の
- * 一覧、消費日数の自動入力、サーバのエラーの反映が、どれもフォームの値と
- * 結びついているため、ページ側とフックに分けても片方だけでは完結しない。
- */
 export function useStockForm({ stock, products }: Params) {
   const form = useForm<StockFormValues>({ defaultValues: stockFormDefaults(stock) });
   const categoryId = useWatch({ control: form.control, name: 'category_id' });
