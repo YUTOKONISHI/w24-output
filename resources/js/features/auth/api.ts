@@ -1,7 +1,8 @@
 import { router } from '@inertiajs/react';
+import forgotPasswordRoutes from '@/routes/forgot-password';
 import loginRoutes from '@/routes/login';
-import passwordRoutes from '@/routes/password';
 import registerRoutes from '@/routes/register';
+import resetPasswordRoutes from '@/routes/reset-password';
 
 type Errors = Record<string, string>;
 
@@ -22,12 +23,17 @@ export function register(
 }
 
 export function requestPasswordReset(email: string, callbacks: Callbacks) {
-  router.post(passwordRoutes.email.url(), { email }, callbacks);
+  router.post(forgotPasswordRoutes.store.url(), { email }, callbacks);
 }
 
 export function resetPassword(
-  values: { token: string; email: string; password: string; password_confirmation: string },
+  values: {
+    email: string;
+    temporary_password: string;
+    password: string;
+    password_confirmation: string;
+  },
   callbacks: Callbacks,
 ) {
-  router.post(passwordRoutes.update.url(), values, callbacks);
+  router.post(resetPasswordRoutes.store.url(), values, callbacks);
 }
