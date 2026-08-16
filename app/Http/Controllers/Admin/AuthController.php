@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -62,8 +61,9 @@ class AuthController extends Controller
             'password' => ['required', 'confirmed', 'min:8'],
         ]);
 
+        // パスワードはModel側でHash化されるので、ここではそのまま渡す
         Auth::guard('admin')->user()->update([
-            'password' => Hash::make($request->password),
+            'password' => $request->password,
         ]);
 
         return back()->with('success', 'パスワードを変更しました');
