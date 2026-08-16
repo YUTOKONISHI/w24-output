@@ -6,12 +6,18 @@ CREATE TABLE "users"(
         TIME zone NULL,
         "password" VARCHAR(255) NOT NULL,
         "household_size" INTEGER NULL,
+        "remember_token" VARCHAR(100) NULL,
         "created_at" TIMESTAMP(0)
     WITH
         TIME zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
         "updated_at" TIMESTAMP(0)
     WITH
-        TIME zone NOT NULL DEFAULT CURRENT_TIMESTAMP
+        TIME zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "two_factor_secret" TEXT NULL,
+        "two_factor_recovery_codes" TEXT NULL,
+        "two_factor_confirmed_at" TIMESTAMP(0)
+    WITH
+        TIME zone NULL
 );
 ALTER TABLE
     "users" ADD PRIMARY KEY("id");
@@ -34,10 +40,39 @@ ON COLUMN
     "users"."household_size" IS '世帯人数';
 COMMENT
 ON COLUMN
+    "users"."remember_token" IS 'ログイン保持トークン';
+COMMENT
+ON COLUMN
     "users"."created_at" IS '作成日時';
 COMMENT
 ON COLUMN
     "users"."updated_at" IS '更新日付';
+COMMENT
+ON COLUMN
+    "users"."two_factor_secret" IS '二要素認証の秘密鍵';
+COMMENT
+ON COLUMN
+    "users"."two_factor_recovery_codes" IS '二要素認証のリカバリコード';
+COMMENT
+ON COLUMN
+    "users"."two_factor_confirmed_at" IS '二要素認証の有効化日時';
+CREATE TABLE "password_reset_tokens"(
+    "email" VARCHAR(255) NOT NULL,
+    "token" VARCHAR(255) NOT NULL,
+    "created_at" TIMESTAMP(0) WITH
+        TIME zone NULL
+);
+ALTER TABLE
+    "password_reset_tokens" ADD PRIMARY KEY("email");
+COMMENT
+ON COLUMN
+    "password_reset_tokens"."email" IS 'メールアドレス';
+COMMENT
+ON COLUMN
+    "password_reset_tokens"."token" IS 'リセットトークン';
+COMMENT
+ON COLUMN
+    "password_reset_tokens"."created_at" IS '作成日時';
 CREATE TABLE "products"(
     "id" BIGINT NOT NULL,
     "category_id" BIGINT NOT NULL,
@@ -187,12 +222,12 @@ ON COLUMN
 ALTER TABLE
     "products" ADD CONSTRAINT "products_created_by_foreign" FOREIGN KEY("created_by") REFERENCES "admin"("id");
 ALTER TABLE
-    "stocks" ADD CONSTRAINT "stocks_user_id_foreign" FOREIGN KEY("user_id") REFERENCES "users"("id");
+    "stocks" ADD CONSTRAINT "stocks_user_id_foreign" FOREIGN KEY("user_id") REFERENCES "users"("id") ON DELETE CASCADE;
 ALTER TABLE
-    "notification_logs" ADD CONSTRAINT "notification_logs_user_id_foreign" FOREIGN KEY("user_id") REFERENCES "users"("id");
+    "notification_logs" ADD CONSTRAINT "notification_logs_user_id_foreign" FOREIGN KEY("user_id") REFERENCES "users"("id") ON DELETE CASCADE;
 ALTER TABLE
-    "stocks" ADD CONSTRAINT "stocks_product_id_foreign" FOREIGN KEY("product_id") REFERENCES "products"("id");
+    "stocks" ADD CONSTRAINT "stocks_product_id_foreign" FOREIGN KEY("product_id") REFERENCES "products"("id") ON DELETE RESTRICT;
 ALTER TABLE
     "categories" ADD CONSTRAINT "categories_created_by_foreign" FOREIGN KEY("created_by") REFERENCES "admin"("id");
 ALTER TABLE
-    "products" ADD CONSTRAINT "products_category_id_foreign" FOREIGN KEY("category_id") REFERENCES "categories"("id");
+    "products" ADD CONSTRAINT "products_category_id_foreign" FOREIGN KEY("category_id") REFERENCES "categories"("id") ON DELETE RESTRICT;
