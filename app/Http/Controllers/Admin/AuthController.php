@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admin;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -49,8 +50,11 @@ class AuthController extends Controller
             'password' => ['required', 'confirmed', 'min:8'],
         ]);
 
+        /** @var Admin $admin */
+        $admin = Auth::guard('admin')->user();
+
         // パスワードはModel側でHash化されるので、ここではそのまま渡す
-        Auth::guard('admin')->user()->update([
+        $admin->update([
             'password' => $request->password,
         ]);
 

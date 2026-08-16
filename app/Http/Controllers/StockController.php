@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\Stock;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -116,7 +117,9 @@ class StockController extends Controller
      */
     private function productsForForm(): Collection
     {
-        $householdSize = Auth::guard('web')->user()?->household_size;
+        /** @var User|null $user */
+        $user = Auth::guard('web')->user();
+        $householdSize = $user?->household_size;
 
         return Product::with('category')
             ->orderBy('name', 'asc')
