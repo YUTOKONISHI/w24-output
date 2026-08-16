@@ -86,3 +86,39 @@ Laravel の `PasswordBroker` は、64文字のランダムなトークンをURL�
 1. **仮パスワードの文字数と文字種**。推奨は8文字、紛らわしい文字を除いた英大文字と数字。
 2. **失敗時のメッセージを「仮パスワードが違う」と「期限切れ」で分けるか**。推奨は分けない。分けると、有効な仮パスワードが存在するかどうかを外部から測れる。分けないと利用者は再発行が必要な理由を判断しにくい。
 3. **Mailpit を足すか**。`MAIL_MAILER=log` のままでも開発は進む。
+
+## 改訂（2026-08-16）
+
+「確認したいこと」に回答を得た。
+
+1. **生成規則は8文字、英大文字と数字**。`0` と `O`、`1` と `I` のように読み違えやすい文字は除く。
+2. **失敗時のメッセージは分けない**。仮パスワードの誤りと期限切れを同じ文面で返し、再発行へ誘導する。
+3. **Mailpit を足す**。`compose.yaml` にコンテナを追加し、`.env` の `MAIL_MAILER` を `smtp` に向ける。ポートフォリオとして受信の体験まで画面で見せられるようにする。
+
+## 改訂（2026-08-16・フロント実装）
+
+フロントを実装し、サーバとの取り決めを確定した。サーバ側はこの取り決めに合わせる。
+
+- **ルート名**。Fortify が使っていた名前をそのまま引き継ぐ。`POST /app/forgot-password` は `password.email`、`POST /app/reset-password` は `password.update`。名前が変わるとフロントの参照（wayfinder の生成物）が全て動く
+- **再設定画面のビュールート**。`GET /app/reset-password` を `Route::inertia` で `routes/web.php` に登録した。名前は `reset-password`。Fortify を外す作業でこの行を消さない
+- **項目名**。`email`、`temporary_password`、`password`、`password_confirmation` の4つ。検証エラーも同じキーで返す
+- **送信後の導線**。仮パスワードの発行に成功したら、発行画面に再設定画面へのリンクを出す。自動では遷移しない。メールを見に行ってから戻る流れに合わせた
+- **仮パスワードの入力欄は伏せ字にしない**。メールから書き写すため、`type="text"` とした
+
+なお `POST /app/reset-password` は Fortify の `NewPasswordController` に向いたままなので、サーバ側を差し替えるまで送信は通らない。
+
+## 改訂（2026-08-16・実装完了）
+
+サーバ側を実装し、切り替えを終えた。
+
+**ルート名は Fortify から引き継がず、自前で付け直した。** 前の改訂では `password.email` と `password.update` を引き継ぐとしたが、`forgot-password.store` と `reset-password.store` に変えた。`stocks.store` や `admin.login.store` という `routes/web.php` の流儀に揃うため。フロントの参照（`resources/js/features/auth/api.ts`）も合わせて差し替えた。
+
+- **コントローラ**。`PasswordResetController` に発行と再設定の両方を置いた。検証は他のコントローラと同じくインラインの `$request->validate()`。FormRequest はこのプロジェクトに前例が無いので作らない
+- **仮パスワードの生成**。`generateTemporaryPassword()` で8文字。`Str::random()` は大小英数字が混ざり書き写しに向かない
+- **発行の連続要求**。ルートに `->middleware('throttle:6,1')`。存在しないアドレス宛の連投も止まる
+- **メール**。`TemporaryPasswordIssued` 通知。有効期限は `config('auth.passwords.users.expire')` から引くので、文面に分数を直接書いていない
+- **Mailpit**。`compose.yaml` に Sail のスタブどおり追加。`.env` と `.env.example` を `smtp` / `mailpit` / `1025` に。あわせて `.env.example` に取り残されていたロケールとDBの設定も `.env` に揃えた
+
+動作は手作業で確認した。発行するとハッシュだけがDBに入り、Mailpit に日本語の本文が届き、誤った仮パスワードは戻され、正しい仮パスワードで再設定できて行が消える。期限切れだけは時間を進められないので未確認。
+
+**テストは書いていない。** MVP の段階を優先し、後回しにすると決めた（2026-08-16）。`tests/Pest.php` の `RefreshDatabase` も無効のまま。着手するときは、上の「テスト」節の5項目に加えて、`TemporaryPasswordIssued` のコンストラクタを `public readonly` にして平文を取り出せるようにする必要がある。

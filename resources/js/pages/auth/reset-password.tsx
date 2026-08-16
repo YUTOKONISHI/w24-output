@@ -14,38 +14,39 @@ import { Input } from '@/shared/components/ui/input';
 
 type ResetPasswordForm = {
   email: string;
+  temporary_password: string;
   password: string;
   password_confirmation: string;
 };
 
-type Props = {
-  token: string;
-  email: string;
-};
-
-export default function ResetPassword({ token, email }: Props) {
+export default function ResetPassword() {
   const form = useForm<ResetPasswordForm>({
-    defaultValues: { email, password: '', password_confirmation: '' },
+    defaultValues: {
+      email: '',
+      temporary_password: '',
+      password: '',
+      password_confirmation: '',
+    },
   });
   const { isSubmitting } = form.formState;
 
   function onSubmit(data: ResetPasswordForm) {
-    resetPassword(
-      { ...data, token },
-      {
-        onError: (err) => {
-          (['email', 'password'] as const).forEach((field) => {
-            if (err[field]) {
-              form.setError(field, { message: err[field] });
-            }
-          });
-        },
+    resetPassword(data, {
+      onError: (err) => {
+        (['email', 'temporary_password', 'password'] as const).forEach((field) => {
+          if (err[field]) {
+            form.setError(field, { message: err[field] });
+          }
+        });
       },
-    );
+    });
   }
 
   return (
-    <AuthCard title="新しいパスワードを設定">
+    <AuthCard
+      title="新しいパスワードを設定"
+      description="メールに記載された仮パスワードと、新しいパスワードを入力してください。"
+    >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
@@ -57,6 +58,20 @@ export default function ResetPassword({ token, email }: Props) {
                 <FormLabel>メールアドレス</FormLabel>
                 <FormControl>
                   <Input type="email" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="temporary_password"
+            rules={{ required: '仮パスワードを入力してください' }}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>仮パスワード</FormLabel>
+                <FormControl>
+                  <Input type="text" autoComplete="off" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

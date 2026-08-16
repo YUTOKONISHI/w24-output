@@ -1,8 +1,9 @@
 import { Link } from '@inertiajs/react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { requestPasswordReset } from '@/features/auth/api';
-import { login } from '@/routes';
+import { login, resetPassword } from '@/routes';
 import { AuthCard } from '@/shared/components/AuthCard';
 import { Button } from '@/shared/components/ui/button';
 import {
@@ -22,10 +23,14 @@ type ForgotPasswordForm = {
 export default function ForgotPassword() {
   const form = useForm<ForgotPasswordForm>({ defaultValues: { email: '' } });
   const { isSubmitting } = form.formState;
+  const [sent, setSent] = useState(false);
 
   function onSubmit(data: ForgotPasswordForm) {
     requestPasswordReset(data.email, {
-      onSuccess: () => toast.success('パスワードリセットメールを送信しました'),
+      onSuccess: () => {
+        setSent(true);
+        toast.success('仮パスワードをメールで送信しました');
+      },
       onError: (err) => {
         if (err.email) {
           form.setError('email', { message: err.email });
@@ -37,7 +42,7 @@ export default function ForgotPassword() {
   return (
     <AuthCard
       title="パスワードをお忘れですか？"
-      description="登録済みのメールアドレスを入力してください。パスワードリセットリンクをお送りします。"
+      description="登録済みのメールアドレスを入力してください。新しいパスワードの設定に使う仮パスワードをお送りします。"
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -56,8 +61,19 @@ export default function ForgotPassword() {
             )}
           />
           <Button type="submit" disabled={isSubmitting} className="w-full">
-            {isSubmitting ? '送信中...' : 'リセットリンクを送信'}
+            {isSubmitting ? '送信中...' : '仮パスワードを送信'}
           </Button>
+          {sent && (
+            <div className="rounded-md bg-primary-50 p-3 text-sm text-ink">
+              <p>メールに記載された仮パスワードで、新しいパスワードを設定してください。</p>
+              <Link
+                href={resetPassword.url()}
+                className="mt-2 inline-block text-primary-700 hover:underline"
+              >
+                仮パスワードを入力する
+              </Link>
+            </div>
+          )}
           <div className="mt-4 text-sm">
             <Link href={login.url()} className="text-primary-700 hover:underline">
               ログインに戻る

@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\NotificationLogController;
+use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\StockController;
 use Illuminate\Support\Facades\Route;
@@ -15,6 +16,9 @@ Route::prefix('app')->group(function () {
     Route::inertia('/welcome', 'welcome')->name('welcome');
 
     Route::inertia('/forgot-password', 'auth/forgot-password')->name('forgot-password');
+    Route::post('/forgot-password', [PasswordResetController::class, 'sendTemporaryPassword'])->middleware('throttle:6,1')->name('forgot-password.store');
+    Route::inertia('/reset-password', 'auth/reset-password')->name('reset-password');
+    Route::post('/reset-password', [PasswordResetController::class, 'resetPassword'])->name('reset-password.store');
 
     Route::middleware('auth')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

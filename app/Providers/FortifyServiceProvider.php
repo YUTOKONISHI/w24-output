@@ -4,7 +4,6 @@ namespace App\Providers;
 
 use App\Actions\Fortify\AttemptToAuthenticate;
 use App\Actions\Fortify\CreateNewUser;
-use App\Actions\Fortify\ResetUserPassword;
 use App\Actions\Fortify\UpdateUserPassword;
 use App\Actions\Fortify\UpdateUserProfileInformation;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -37,7 +36,6 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::createUsersUsing(CreateNewUser::class);
         Fortify::updateUserProfileInformationUsing(UpdateUserProfileInformation::class);
         Fortify::updateUserPasswordsUsing(UpdateUserPassword::class);
-        Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
         Fortify::redirectUserForTwoFactorAuthenticationUsing(RedirectIfTwoFactorAuthenticatable::class);
 
         Fortify::authenticateThrough(fn ($request) => array_filter([
@@ -53,17 +51,6 @@ class FortifyServiceProvider extends ServiceProvider
 
         Fortify::registerView(function () {
             return Inertia::render('auth/register');
-        });
-
-        Fortify::requestPasswordResetLinkView(function () {
-            return Inertia::render('auth/forgot-password');
-        });
-
-        Fortify::resetPasswordView(function ($request) {
-            return Inertia::render('auth/reset-password', [
-                'token' => $request->route('token'),
-                'email' => $request->email,
-            ]);
         });
 
         RateLimiter::for('login', function (Request $request) {
