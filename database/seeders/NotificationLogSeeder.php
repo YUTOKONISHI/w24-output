@@ -14,10 +14,6 @@ class NotificationLogSeeder extends Seeder
      * Push通知の配信はまだ実装していないため、履歴が空のままでは通知画面の
      * 一覧を画面で確かめられない。届いたことにした2件を入れる。
      *
-     * 対象はストック数1で投入している2件（トイレットペーパーと洗濯洗剤）に
-     * した。ダッシュボードで優先表示される商品と揃えている。予定日は先だが、
-     * 過去に通知を受けて買い足した結果、次回が先に動いたと読める。
-     *
      * @var array<int, array{title: string, description: string, days_ago: int}>
      */
     private const LOGS = [

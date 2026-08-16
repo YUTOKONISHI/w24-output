@@ -103,8 +103,6 @@ class StockController extends Controller
 
         $stock->delete();
 
-        // back() は削除元の /app/stocks/{stock}/edit に戻り、
-        // 消したレコードをモデル結合が引こうとして 404 になる。一覧へ返す。
         return to_route('stocks.index');
     }
 
