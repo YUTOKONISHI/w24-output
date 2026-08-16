@@ -18,7 +18,7 @@ use Illuminate\Notifications\Notifiable;
  * @property string $email
  * @property CarbonImmutable|null $email_verified_at
  * @property string $password
- * @property int|null $household_size ← 追加
+ * @property int|null $household_size
  * @property string|null $remember_token
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
