@@ -21,7 +21,6 @@ class UpdateUserPassword implements UpdatesUserPasswords
      */
     public function update(User $user, array $input): void
     {
-        // エラーバッグは既定のものを使う。理由は UpdateUserProfileInformation と同じ。
         Validator::make($input, [
             'current_password' => ['required', 'string', 'current_password:web'],
             'password' => $this->passwordRules(),

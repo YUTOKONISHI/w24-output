@@ -9,9 +9,6 @@ use Inertia\Response;
 
 class DashboardController extends Controller
 {
-    /**
-     * ダッシュボード画面を表示する
-     */
     public function index(): Response
     {
         /* ログインユーザーの購入予定品を、要件どおりストック数1のものを先頭に、

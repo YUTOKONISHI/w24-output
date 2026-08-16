@@ -7,13 +7,6 @@ type Props = {
   categories: Category[];
 };
 
-/**
- * 消費間隔の入力値を数値に変換する。
- *
- * 空欄と、数値として読めない入力（日本語入力がオンのままの全角数字など）は
- * 未入力として null にする。Number() の結果をそのまま state に入れると
- * NaN が入力欄に表示されて消せなくなる。
- */
 function toDays(value: string): number | null {
   if (value === '') {
     return null;

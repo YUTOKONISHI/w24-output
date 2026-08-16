@@ -11,9 +11,6 @@ use Illuminate\Validation\Rule;
 
 class CategoryController extends Controller
 {
-    /**
-     * カテゴリを作成する
-     */
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
@@ -29,9 +26,6 @@ class CategoryController extends Controller
         return back();
     }
 
-    /**
-     * カテゴリを更新する
-     */
     public function update(Request $request, Category $category): RedirectResponse
     {
         $request->validate([
@@ -46,9 +40,6 @@ class CategoryController extends Controller
         return back();
     }
 
-    /**
-     * カテゴリを削除する
-     */
     public function destroy(Category $category): RedirectResponse
     {
         if ($category->products()->exists()) {
