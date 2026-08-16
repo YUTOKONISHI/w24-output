@@ -15,10 +15,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('category_id')->constrained()->restrictOnDelete();
             $table->string('name');
-            $table->integer('default_consumption_interval_days')->nullable();
-            $table->bigInteger('created_by')->nullable();
-            $table->bigInteger('updated_by')->nullable();
-            $table->timestamps();
+            $table->integer('default_consumption_interval_days');
+            $table->foreignId('created_by')->constrained('admin');
+            $table->bigInteger('updated_by');
+            $table->timestampTz('created_at')->useCurrent();
+            $table->timestampTz('updated_at')->useCurrent();
         });
     }
 

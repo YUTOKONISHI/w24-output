@@ -13,9 +13,6 @@ use Inertia\Response;
 
 class StockController extends Controller
 {
-    /**
-     * 購入予定品一覧画面を表示する
-     */
     public function index(): Response
     {
         $stocks = Stock::with('product.category')->where('user_id', Auth::id())->orderBy('next_purchase_date', 'asc')->get();
@@ -25,9 +22,6 @@ class StockController extends Controller
         ]);
     }
 
-    /**
-     * 購入予定品を作成する画面を表示する
-     */
     public function create(): Response
     {
         return Inertia::render('stocks/form', [
@@ -36,9 +30,6 @@ class StockController extends Controller
         ]);
     }
 
-    /**
-     * 購入予定品を編集する画面を表示する
-     */
     public function edit(Stock $stock): Response
     {
         abort_if($stock->user_id !== Auth::id(), 403);
@@ -49,16 +40,13 @@ class StockController extends Controller
         ]);
     }
 
-    /**
-     * 購入予定品を作成する
-     */
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
             'product_id' => 'required|exists:products,id',
             'quantity' => 'required|integer|min:1',
             'consumption_interval_days' => 'required|integer|min:1',
-            'next_purchase_date' => 'nullable|date',
+            'next_purchase_date' => 'nullable|date_format:Y-m-d',
         ]);
 
         Stock::create([
@@ -72,9 +60,6 @@ class StockController extends Controller
         return to_route('stocks.index');
     }
 
-    /**
-     * 購入予定品を更新する
-     */
     public function update(Request $request, Stock $stock): RedirectResponse
     {
         abort_if($stock->user_id !== Auth::id(), 403);
@@ -82,7 +67,7 @@ class StockController extends Controller
         $request->validate([
             'quantity' => 'required|integer|min:1',
             'consumption_interval_days' => 'required|integer|min:1',
-            'next_purchase_date' => 'nullable|date',
+            'next_purchase_date' => 'nullable|date_format:Y-m-d',
         ]);
 
         $stock->update([
@@ -94,9 +79,6 @@ class StockController extends Controller
         return to_route('stocks.index');
     }
 
-    /**
-     * 購入予定品を削除する
-     */
     public function destroy(Stock $stock): RedirectResponse
     {
         abort_if($stock->user_id !== Auth::id(), 403);
@@ -116,7 +98,7 @@ class StockController extends Controller
     private function resolveNextPurchaseDate(Request $request): string
     {
         if ($request->filled('next_purchase_date')) {
-            return $request->next_purchase_date;
+            return $request->date('next_purchase_date')->toDateString();
         }
 
         $days = (int) $request->consumption_interval_days * (int) $request->quantity;
@@ -128,7 +110,7 @@ class StockController extends Controller
      * ストック設定画面に渡す商品一覧を組み立てる。
      *
      * 消費日数の初期値はここで世帯人数の補正を掛ける。保存時（store / update）に
-     * 届く値は補正済みか手で書き換えた値なので、そちらでは絶対に割らないこと。
+     * 届く値は補正済みか手で書き換えた値なので除算不要
      *
      * @return Collection<int, Product>
      */

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import type { Product } from '@/shared/types/catalog';
 import { createProduct, deleteProduct, updateProduct } from '../api';
-import type { NewProduct } from '../types';
+import type { EditingProduct, NewProduct } from '../types';
 
 const EMPTY_PRODUCT: NewProduct = {
   name: '',
@@ -14,7 +14,7 @@ export function useProductManagement() {
   const [newProduct, setNewProduct] = useState<NewProduct>(EMPTY_PRODUCT);
   const [showNewRow, setShowNewRow] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [editingProduct, setEditingProduct] = useState<EditingProduct | null>(null);
 
   function remove(id: number) {
     deleteProduct(id, {

@@ -1,7 +1,6 @@
 import { router } from '@inertiajs/react';
 import admin from '@/routes/admin';
-import type { Product } from '@/shared/types/catalog';
-import type { NewProduct } from './types';
+import type { EditingProduct, NewProduct } from './types';
 
 type Errors = Record<string, string>;
 
@@ -33,7 +32,7 @@ export function createProduct(product: NewProduct, callbacks: Callbacks) {
   );
 }
 
-export function updateProduct(product: Product, callbacks: Callbacks) {
+export function updateProduct(product: EditingProduct, callbacks: Callbacks) {
   router.put(
     admin.products.update.url(product.id),
     {

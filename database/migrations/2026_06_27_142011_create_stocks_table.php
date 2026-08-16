@@ -15,10 +15,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('product_id')->constrained()->restrictOnDelete();
-            $table->integer('quantity')->nullable();
+            $table->integer('quantity')->default(1);
             $table->integer('consumption_interval_days');
-            $table->timestamp('next_purchase_date')->nullable();
-            $table->timestamps();
+            $table->timestampTz('next_purchase_date');
+            $table->timestampTz('created_at')->useCurrent();
+            $table->timestampTz('updated_at')->useCurrent();
         });
     }
 
