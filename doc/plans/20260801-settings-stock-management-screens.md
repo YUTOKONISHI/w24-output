@@ -1157,3 +1157,13 @@ form-C5XFZ7Wn.js       stocks/form.tsx
 
 ルート名は改訂の表（`settings.index` / `profile.edit` / `profile.update` / `stocks.index` / `stocks.create` / `stocks.edit`）のとおりに付けること。パスを直書きしている今は名前が違ってもフロントは動くが、Wayfinder への差し替え時に効いてくる。
 
+
+## 追記（2026-08-23）：トップページに通知の一文を足した
+
+「改訂（2026-08-01）：トップページの文案を確定する」の「通知の文言は今は載せない」で、フェーズ3の完了時に足すと決めていた一文を `welcome.tsx` に入れた。
+
+```
+買う日が来たら、その日の朝にお知らせします。
+```
+
+Push通知の購読と配信は `20260817-push-notification.md` で実装済み（PR #13）。トグルは `useState(true)` のハリボテではなくなり、朝9時の配信も動いているので、機能の約束にならない。
