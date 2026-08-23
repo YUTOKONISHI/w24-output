@@ -51,7 +51,7 @@ class StockController extends Controller
         ]);
 
         Stock::create([
-            'user_id' => $request->user()->id,
+            'user_id' => Auth::id(),
             'product_id' => $request->product_id,
             'quantity' => $request->quantity,
             'consumption_interval_days' => $request->consumption_interval_days,
@@ -63,7 +63,7 @@ class StockController extends Controller
 
     public function update(Request $request, Stock $stock): RedirectResponse
     {
-        abort_if($stock->user_id !== $request->user()->id, 403);
+        abort_if($stock->user_id !== Auth::id(), 403);
 
         $request->validate([
             'quantity' => ['required', 'integer', 'min:1'],
@@ -118,7 +118,7 @@ class StockController extends Controller
     private function productsForForm(): Collection
     {
         /** @var User|null $user */
-        $user = Auth::user();
+        $user = Auth::guard('web')->user();
         $householdSize = $user?->household_size;
 
         return Product::with('category')
