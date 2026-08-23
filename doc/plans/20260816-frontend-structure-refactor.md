@@ -271,3 +271,9 @@ placeholder={hasCategory ? '選択してください' : '先にカテゴリを�
 ### 検証
 
 `npm run types:check`、`npm run lint:check`、`npm run build` が通る。加えて、シーダーの一般ユーザーでログインして `/app/stocks/create` を取得し、`stocks/form` が描画され `products` が17件、`initial_consumption_interval_days` が世帯人数で割られた値で載っていることを確認した。ブラウザでの操作は確かめていない。
+
+## 追記（2026-08-17）：Push通知の参照先が変わった
+
+「残件」で `20260729-pwa-general-user-only.md` のフェーズ2を指している箇所は、**`20260817-push-notification.md` に読み替える。** 購読と配信をそちらへ切り出した。
+
+あわせて、`features/notification` に `api.ts` と `hooks/` が埋まる時期も移管先が持つ。本書で決めた機能別の配置に従い、移管元が `resources/js/hooks/usePushSubscription.ts` としていた置き場は `features/notification/hooks/usePushSubscription.ts` に改めた。

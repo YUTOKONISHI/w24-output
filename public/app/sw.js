@@ -56,6 +56,46 @@ self.addEventListener('fetch', (event) => {
   }
 });
 
+self.addEventListener('push', (event) => {
+  let payload = {};
+
+  try {
+    payload = event.data ? event.data.json() : {};
+  } catch {
+    payload = {};
+  }
+
+  event.waitUntil(
+    self.registration.showNotification(payload.title ?? '買い忘れ防止', {
+      body: payload.body ?? '',
+      icon: '/icons/icon-192.png',
+      // tag を固定して、同日に再送されても通知が積み上がらないようにする。
+      tag: 'purchase-reminder',
+      data: { url: payload.url ?? '/app/dashboard' },
+    })
+  );
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+
+  const target = new URL(event.notification.data?.url ?? '/app/dashboard', self.location.origin).href;
+
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
+      const client = clients.find((c) => c.url.startsWith(self.location.origin));
+
+      if (client) {
+        client.navigate(target);
+
+        return client.focus();
+      }
+
+      return self.clients.openWindow(target);
+    })
+  );
+});
+
 async function cacheFirst(request) {
   const cache = await caches.open(ASSET_CACHE);
   const hit = await cache.match(request);
