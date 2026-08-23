@@ -21,6 +21,7 @@ export default function Welcome() {
         <div className="mt-6 space-y-1 text-sm leading-relaxed text-ink-muted">
           <p>切らすと困るものを、買ったときに登録しておくだけ。</p>
           <p>ストック数と消費日数から、次に買う日を自動で計算します。</p>
+          <p>買う日が来たら、その日の朝にお知らせします。</p>
         </div>
 
         <Link
