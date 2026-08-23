@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use NotificationChannels\WebPush\HasPushSubscriptions;
 
 /**
  * @property int $id
@@ -23,12 +24,12 @@ use Illuminate\Notifications\Notifiable;
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
  */
-#[Fillable(['name', 'email', 'password', 'household_size'])]
-#[Hidden(['password', 'remember_token'])]
+#[Fillable('name', 'email', 'password', 'household_size')]
+#[Hidden('password', 'remember_token')]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, HasPushSubscriptions, Notifiable;
 
     /**
      * Get the attributes that should be cast.

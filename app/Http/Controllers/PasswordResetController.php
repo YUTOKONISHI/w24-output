@@ -75,7 +75,7 @@ class PasswordResetController extends Controller
 
         DB::table('password_reset_tokens')->where('email', $request->email)->delete();
 
-        return redirect()->route('login')->with('success', 'パスワードを再設定しました');
+        return to_route('login')->with('success', 'パスワードを再設定しました');
     }
 
     private function generateTemporaryPassword(): string

@@ -364,3 +364,11 @@ php artisan test        2 passed
 - **Push通知の配信が未実装**
 
 これで設計と実装の食い違いは、`users.household_size`（設計側のエクスポートを実装に合わせて修正済み）を含めて解消した。`created_at` / `updated_at` は実装を設計に寄せた。
+
+## 追記（2026-08-17）：残件のPush通知は `20260817-push-notification.md` へ
+
+各改訂の「残件」に挙げてきた **Push通知の配信は `20260817-push-notification.md` で扱う。** `20260729-pwa-general-user-only.md` のフェーズ2と3を切り出した計画書である。
+
+「残件」の初出（`## 残件`）で挙げた「`next_purchase_date` との比較が `whereDate` で足りるか、`timestamptz` の境界をどう扱うか」には、移管先が回答を置いた。`whereDate` を使う。PostgreSQL は `timestamptz` を `date` にキャストするときセッションのタイムゾーンを見るため、3節で入れた `config/database.php` の `'timezone' => 'Asia/Tokyo'` が効いてJSTの暦日で比較される。4節で書き込み側を 00:00 に揃えてあるので等値比較でも当たるが、その規約が崩れた行を静かに取りこぼすため採らない。
+
+本書で決めたタイムゾーンの扱いは、移管元の設計判断6（`config/app.php` を UTC のまま触らない）を無効にしている。移管先の「移管元から変わった前提」にその旨を書いた。

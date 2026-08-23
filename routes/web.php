@@ -7,6 +7,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\NotificationLogController;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\StockController;
 use Illuminate\Support\Facades\Route;
 
@@ -31,13 +32,14 @@ Route::prefix('app')->group(function () {
         Route::delete('/stocks/{stock}', [StockController::class, 'destroy'])->name('stocks.destroy');
 
         Route::get('/notifications', [NotificationLogController::class, 'index'])->name('notifications.index');
-        Route::post('/notifications', [NotificationLogController::class, 'store'])->name('notifications.store');
         Route::delete('/notifications/{notificationLog}', [NotificationLogController::class, 'destroy'])->name('notifications.destroy');
 
         Route::inertia('/settings', 'settings/index')->name('settings.index');
         Route::get('/settings/profile', [ProfileController::class, 'index'])->name('profile.edit');
         Route::put('/settings/profile', [ProfileController::class, 'update'])->name('profile.update');
 
+        Route::post('/push-subscriptions', [PushSubscriptionController::class, 'store'])->name('push-subscriptions.store');
+        Route::delete('/push-subscriptions', [PushSubscriptionController::class, 'destroy'])->name('push-subscriptions.destroy');
     });
 });
 

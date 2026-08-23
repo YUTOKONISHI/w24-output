@@ -44,14 +44,14 @@ class StockController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'quantity' => 'required|integer|min:1',
-            'consumption_interval_days' => 'required|integer|min:1',
-            'next_purchase_date' => 'nullable|date_format:Y-m-d',
+            'product_id' => ['required', 'exists:products,id'],
+            'quantity' => ['required', 'integer', 'min:1'],
+            'consumption_interval_days' => ['required', 'integer', 'min:1'],
+            'next_purchase_date' => ['nullable', 'date_format:Y-m-d'],
         ]);
 
         Stock::create([
-            'user_id' => Auth::id(),
+            'user_id' => $request->user()->id,
             'product_id' => $request->product_id,
             'quantity' => $request->quantity,
             'consumption_interval_days' => $request->consumption_interval_days,
@@ -63,12 +63,12 @@ class StockController extends Controller
 
     public function update(Request $request, Stock $stock): RedirectResponse
     {
-        abort_if($stock->user_id !== Auth::id(), 403);
+        abort_if($stock->user_id !== $request->user()->id, 403);
 
         $request->validate([
-            'quantity' => 'required|integer|min:1',
-            'consumption_interval_days' => 'required|integer|min:1',
-            'next_purchase_date' => 'nullable|date_format:Y-m-d',
+            'quantity' => ['required', 'integer', 'min:1'],
+            'consumption_interval_days' => ['required', 'integer', 'min:1'],
+            'next_purchase_date' => ['nullable', 'date_format:Y-m-d'],
         ]);
 
         $stock->update([
@@ -118,7 +118,7 @@ class StockController extends Controller
     private function productsForForm(): Collection
     {
         /** @var User|null $user */
-        $user = Auth::guard('web')->user();
+        $user = Auth::user();
         $householdSize = $user?->household_size;
 
         return Product::with('category')
