@@ -92,6 +92,17 @@ class StockController extends Controller
         return to_route('stocks.index');
     }
 
+    public function purchase(Stock $stock): RedirectResponse
+    {
+        abort_if($stock->user_id !== Auth::id(), 403);
+
+        $stock->update([
+            'next_purchase_date' => $stock->calculateNextPurchaseDate(),
+        ]);
+
+        return to_route('dashboard');
+    }
+
     /**
      * 次回購入予定日を決める。
      *
@@ -105,9 +116,10 @@ class StockController extends Controller
             return $request->date('next_purchase_date')->toDateString();
         }
 
-        $days = (int) $request->consumption_interval_days * (int) $request->quantity;
-
-        return now()->addDays($days)->toDateString();
+        return Stock::purchaseDateAfter(
+            (int) $request->consumption_interval_days,
+            (int) $request->quantity,
+        );
     }
 
     /**

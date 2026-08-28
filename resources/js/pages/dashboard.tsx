@@ -1,9 +1,18 @@
 import { ja } from 'date-fns/locale';
+import { ShoppingCart } from 'lucide-react';
+import { markStockAsPurchased } from '@/features/stock/api';
 import type { Stock } from '@/features/stock/types';
 import { CategoryIcon } from '@/shared/components/CategoryIcon';
+import { Button } from '@/shared/components/ui/button';
 import { Calendar } from '@/shared/components/ui/calendar';
 import { AppShell } from '@/shared/layouts/AppShell';
-import { formatDate, formatDateWithWeekday, isToday, toDate } from '@/shared/lib/date';
+import {
+  formatDate,
+  formatDateWithWeekday,
+  isToday,
+  isWithinDays,
+  toDate,
+} from '@/shared/lib/date';
 import type { Product } from '@/shared/types/catalog';
 
 type Props = {
@@ -41,6 +50,9 @@ export default function Dashboard({ stocks }: Props) {
 
   const todayStocks = stocks.filter((stock) => isToday(stock.next_purchase_date));
 
+  /** カレンダーと次回購入日は全件を見る。購入予定品は1週間先までに絞る。 */
+  const dueStocks = stocks.filter((stock) => isWithinDays(stock.next_purchase_date, 7));
+
   return (
     <AppShell title="ダッシュボード" active="dashboard">
       <div className="mb-8 hidden grid-cols-3 gap-4 md:grid">
@@ -52,7 +64,7 @@ export default function Dashboard({ stocks }: Props) {
         </div>
         <div className="rounded-lg border border-line bg-surface p-5">
           <p className="text-sm text-ink-muted">購入予定品数</p>
-          <p className="mt-1 text-lg font-bold text-ink">{stocks.length}件</p>
+          <p className="mt-1 text-lg font-bold text-ink">{dueStocks.length}件</p>
         </div>
         <div className="rounded-lg border border-line bg-surface p-5">
           <p className="text-sm text-ink-muted">今日の購入予定</p>
@@ -84,16 +96,28 @@ export default function Dashboard({ stocks }: Props) {
 
         <div>
           <h2 className="mb-4 text-lg font-bold text-ink">購入予定品</h2>
-          {stocks.length === 0 ? (
-            <p className="text-sm text-ink-muted">購入予定品はありません</p>
+          {dueStocks.length === 0 ? (
+            <p className="text-sm text-ink-muted">1週間以内に購入予定の品はありません</p>
           ) : (
             <div className="grid grid-cols-2 gap-4">
-              {stocks.map((stock) => (
+              {dueStocks.map((stock) => (
                 <div key={stock.id} className="rounded-lg border border-line bg-surface p-4">
-                  <CategoryIcon
-                    category={stock.product.category?.name}
-                    className="mb-3 text-primary-600"
-                  />
+                  <div className="mb-3 flex items-start justify-between">
+                    <CategoryIcon
+                      category={stock.product.category?.name}
+                      className="text-primary-600"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label={`「${stock.product.name}」を購入済みにする`}
+                      onClick={() => markStockAsPurchased(stock.id)}
+                      className="text-primary-600"
+                    >
+                      <ShoppingCart />
+                    </Button>
+                  </div>
                   <p className="text-sm font-medium text-ink">{stock.product.name}</p>
                   <p className="mt-2 text-xs text-ink-muted">
                     次回 {formatDate(stock.next_purchase_date)}

@@ -30,6 +30,7 @@ Route::prefix('app')->group(function () {
         Route::post('/stocks', [StockController::class, 'store'])->name('stocks.store');
         Route::put('/stocks/{stock}', [StockController::class, 'update'])->name('stocks.update');
         Route::delete('/stocks/{stock}', [StockController::class, 'destroy'])->name('stocks.destroy');
+        Route::patch('/stocks/{stock}/purchase', [StockController::class, 'purchase'])->name('stocks.purchase');
 
         Route::get('/notifications', [NotificationLogController::class, 'index'])->name('notifications.index');
         Route::patch('/notifications/{notificationLog}/read', [NotificationLogController::class, 'markAsRead'])->name('notifications.read');
