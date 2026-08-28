@@ -2,6 +2,6 @@ export type NotificationLog = {
   id: number;
   title: string;
   description: string;
-  status: string;
+  status: 'unread' | 'read';
   created_at: string;
 };

@@ -8,6 +8,7 @@ use App\Models\Stock;
 use App\Notifications\PurchaseReminder;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class SendPurchaseReminders extends Command
@@ -47,16 +48,18 @@ class SendPurchaseReminders extends Command
 
             try {
                 $user->notify(new PurchaseReminder($title, $description));
-                $status = NotificationStatus::Sent;
-            } catch (Throwable) {
-                $status = NotificationStatus::Failed;
+            } catch (Throwable $exception) {
+                Log::error('購入予定日の通知を積めなかった', [
+                    'user_id' => $user->id,
+                    'exception' => $exception,
+                ]);
             }
 
             NotificationLog::create([
                 'user_id' => $user->id,
                 'title' => $title,
                 'description' => $description,
-                'status' => $status,
+                'status' => NotificationStatus::Unread,
             ]);
         }
 

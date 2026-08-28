@@ -1,5 +1,6 @@
-import { Trash2 } from 'lucide-react';
-import { deleteNotification } from '@/features/notification/api';
+import { Check } from 'lucide-react';
+import { toast } from 'sonner';
+import { markNotificationAsRead, markNotificationAsUnread } from '@/features/notification/api';
 import { usePushSubscription } from '@/features/notification/hooks/usePushSubscription';
 import type { NotificationLog } from '@/features/notification/types';
 import { Pagination } from '@/shared/components/Pagination';
@@ -14,16 +15,23 @@ type Props = {
 };
 
 export default function Notifications({ notifications, vapidPublicKey }: Props) {
-  const { status, subscribe, unsubscribe } = usePushSubscription(vapidPublicKey);
-  const subscribed = status === 'on';
-  const disabled = status === 'unsupported' || status === 'denied';
+  const {
+    status: subscriptionStatus,
+    subscribe,
+    unsubscribe,
+  } = usePushSubscription(vapidPublicKey);
+  const subscribed = subscriptionStatus === 'on';
+  const disabled = subscriptionStatus === 'unsupported' || subscriptionStatus === 'denied';
 
-  function remove(notification: NotificationLog) {
-    if (!window.confirm(`「${notification.title}」の履歴を削除します。よろしいですか？`)) {
-      return;
-    }
-
-    deleteNotification(notification.id);
+  function markAsRead(notification: NotificationLog) {
+    markNotificationAsRead(notification.id, () => {
+      toast.success('既読にしました', {
+        action: {
+          label: '元に戻す',
+          onClick: () => markNotificationAsUnread(notification.id),
+        },
+      });
+    });
   }
 
   return (
@@ -49,7 +57,7 @@ export default function Notifications({ notifications, vapidPublicKey }: Props) 
         </div>
         {disabled && (
           <p className="mt-2 text-xs text-ink-muted">
-            {status === 'denied'
+            {subscriptionStatus === 'denied'
               ? 'ブラウザの設定で通知がブロックされています。設定から許可してください'
               : 'このブラウザはPush通知に対応していません'}
           </p>
@@ -57,9 +65,9 @@ export default function Notifications({ notifications, vapidPublicKey }: Props) 
       </div>
 
       <div>
-        <h2 className="mb-3 text-sm font-bold text-ink">通知履歴</h2>
+        <h2 className="mb-3 text-sm font-bold text-ink">未読の通知</h2>
         {notifications.data.length === 0 ? (
-          <p className="text-sm text-ink-muted">通知履歴はありません</p>
+          <p className="text-sm text-ink-muted">未読の通知はありません</p>
         ) : (
           <div className="space-y-0">
             {notifications.data.map((notification) => (
@@ -76,11 +84,11 @@ export default function Notifications({ notifications, vapidPublicKey }: Props) 
                   type="button"
                   variant="ghost"
                   size="icon-sm"
-                  aria-label="この履歴を削除"
-                  onClick={() => remove(notification)}
-                  className="text-danger-600"
+                  aria-label="この通知を既読にする"
+                  onClick={() => markAsRead(notification)}
+                  className="text-primary-600"
                 >
-                  <Trash2 />
+                  <Check />
                 </Button>
               </div>
             ))}

@@ -25,6 +25,10 @@ export function destroyPushSubscription(endpoint: string) {
   });
 }
 
-export function deleteNotification(id: number) {
-  router.delete(notifications.destroy.url(id), { preserveScroll: true });
+export function markNotificationAsRead(id: number, onSuccess: () => void) {
+  router.patch(notifications.read.url(id), {}, { preserveScroll: true, onSuccess });
+}
+
+export function markNotificationAsUnread(id: number) {
+  router.patch(notifications.unread.url(id), {}, { preserveScroll: true });
 }

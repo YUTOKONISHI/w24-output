@@ -32,7 +32,8 @@ Route::prefix('app')->group(function () {
         Route::delete('/stocks/{stock}', [StockController::class, 'destroy'])->name('stocks.destroy');
 
         Route::get('/notifications', [NotificationLogController::class, 'index'])->name('notifications.index');
-        Route::delete('/notifications/{notificationLog}', [NotificationLogController::class, 'destroy'])->name('notifications.destroy');
+        Route::patch('/notifications/{notificationLog}/read', [NotificationLogController::class, 'markAsRead'])->name('notifications.read');
+        Route::patch('/notifications/{notificationLog}/unread', [NotificationLogController::class, 'markAsUnread'])->name('notifications.unread');
 
         Route::inertia('/settings', 'settings/index')->name('settings.index');
         Route::get('/settings/profile', [ProfileController::class, 'index'])->name('profile.edit');
