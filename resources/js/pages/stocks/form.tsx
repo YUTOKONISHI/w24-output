@@ -1,6 +1,7 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { useStockForm } from '@/features/stock/hooks/useStockForm';
 import type { Stock, StockFormProduct } from '@/features/stock/types';
+import profileRoutes from '@/routes/profile';
 import stockRoutes from '@/routes/stocks';
 import { Button } from '@/shared/components/ui/button';
 import {
@@ -28,6 +29,7 @@ type Props = {
 };
 
 export default function StockForm({ products, stock }: Props) {
+  const { auth } = usePage().props;
   const {
     form,
     isEdit,
@@ -69,6 +71,20 @@ export default function StockForm({ products, stock }: Props) {
       <h1 className="mb-6 text-center text-xl font-bold text-ink md:hidden">{title}</h1>
 
       <div className="max-w-xl">
+        {!isEdit && auth.user.household_size === null && (
+          <div className="mb-4 rounded-lg border border-line bg-primary-50 p-4">
+            <p className="text-sm text-ink">
+              世帯人数を設定すると、消費日数の初期値が人数に合わせて入ります。
+            </p>
+            <Link
+              href={profileRoutes.edit.url()}
+              className="mt-2 inline-block text-sm text-primary-700 underline"
+            >
+              設定画面へ
+            </Link>
+          </div>
+        )}
+
         <Form {...form}>
           <form onSubmit={form.handleSubmit(submit)} className="space-y-4">
             <FormField
