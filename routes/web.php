@@ -19,7 +19,7 @@ Route::prefix('app')->group(function () {
     Route::inertia('/forgot-password', 'auth/forgot-password')->name('forgot-password');
     Route::post('/forgot-password', [PasswordResetController::class, 'sendTemporaryPassword'])->middleware('throttle:6,1')->name('forgot-password.store');
     Route::inertia('/reset-password', 'auth/reset-password')->name('reset-password');
-    Route::post('/reset-password', [PasswordResetController::class, 'resetPassword'])->name('reset-password.store');
+    Route::post('/reset-password', [PasswordResetController::class, 'resetPassword'])->middleware('throttle:6,1')->name('reset-password.store');
 
     Route::middleware('auth')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
