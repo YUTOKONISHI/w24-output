@@ -13,14 +13,25 @@ use Inertia\Response;
 
 class ProductController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        $products = Product::withCount('stocks')->orderBy('created_at', 'desc')->get();
+        // categories が無いときは絞り込み前、空のときは全てのチェックを外した状態を表す。
+        $selected = $request->has('categories')
+            ? array_filter(array_map('intval', explode(',', (string) $request->query('categories'))))
+            : null;
+
+        $products = Product::withCount('stocks')
+            ->when($selected !== null, fn ($query) => $query->whereIn('category_id', $selected ?? []))
+            ->orderBy('created_at', 'desc')
+            ->paginate(50)
+            ->withQueryString();
+
         $categories = Category::withCount('products')->orderBy('name', 'asc')->get();
 
         return Inertia::render('admin/dashboard', [
             'products' => $products,
             'categories' => $categories,
+            'selectedCategories' => $selected ?? $categories->pluck('id'),
         ]);
     }
 

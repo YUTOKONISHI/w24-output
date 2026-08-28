@@ -19,7 +19,7 @@ Route::prefix('app')->group(function () {
     Route::inertia('/forgot-password', 'auth/forgot-password')->name('forgot-password');
     Route::post('/forgot-password', [PasswordResetController::class, 'sendTemporaryPassword'])->middleware('throttle:6,1')->name('forgot-password.store');
     Route::inertia('/reset-password', 'auth/reset-password')->name('reset-password');
-    Route::post('/reset-password', [PasswordResetController::class, 'resetPassword'])->name('reset-password.store');
+    Route::post('/reset-password', [PasswordResetController::class, 'resetPassword'])->middleware('throttle:6,1')->name('reset-password.store');
 
     Route::middleware('auth')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -30,9 +30,11 @@ Route::prefix('app')->group(function () {
         Route::post('/stocks', [StockController::class, 'store'])->name('stocks.store');
         Route::put('/stocks/{stock}', [StockController::class, 'update'])->name('stocks.update');
         Route::delete('/stocks/{stock}', [StockController::class, 'destroy'])->name('stocks.destroy');
+        Route::patch('/stocks/{stock}/purchase', [StockController::class, 'purchase'])->name('stocks.purchase');
 
         Route::get('/notifications', [NotificationLogController::class, 'index'])->name('notifications.index');
-        Route::delete('/notifications/{notificationLog}', [NotificationLogController::class, 'destroy'])->name('notifications.destroy');
+        Route::patch('/notifications/{notificationLog}/read', [NotificationLogController::class, 'markAsRead'])->name('notifications.read');
+        Route::patch('/notifications/{notificationLog}/unread', [NotificationLogController::class, 'markAsUnread'])->name('notifications.unread');
 
         Route::inertia('/settings', 'settings/index')->name('settings.index');
         Route::get('/settings/profile', [ProfileController::class, 'index'])->name('profile.edit');

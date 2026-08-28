@@ -124,7 +124,7 @@
 
 # DB設計
 - https://drawsql.app/teams/konishi/diagrams/portfolio/docs
-- エクスポート: doc/specifications/drawSQL-pgsql-export-2026-08-16.sql
+- エクスポート: doc/specifications/drawSQL-pgsql-export-2026-08-28.sql
 - 図の正本はdrawSQL側にある。設計を変えたらエクスポートし直す
 
 # 開発ルール

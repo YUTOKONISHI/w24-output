@@ -1,9 +1,18 @@
 import { ja } from 'date-fns/locale';
+import { ShoppingCart } from 'lucide-react';
+import { markStockAsPurchased } from '@/features/stock/api';
 import type { Stock } from '@/features/stock/types';
 import { CategoryIcon } from '@/shared/components/CategoryIcon';
+import { Button } from '@/shared/components/ui/button';
 import { Calendar } from '@/shared/components/ui/calendar';
 import { AppShell } from '@/shared/layouts/AppShell';
-import { formatDate, formatDateWithWeekday, isToday, toDate } from '@/shared/lib/date';
+import {
+  formatDate,
+  formatDateWithWeekday,
+  isToday,
+  isWithinDays,
+  toDate,
+} from '@/shared/lib/date';
 import type { Product } from '@/shared/types/catalog';
 
 type Props = {
@@ -15,11 +24,17 @@ const CALENDAR_CLASS_NAMES = {
   root: 'w-full',
   weekdays: 'flex [&>th:first-child]:text-danger-600 [&>th:last-child]:text-info-600',
   day: 'relative aspect-square w-full p-0 flex items-center justify-center',
-  today: '[&[data-today]]:rounded-full [&[data-today]]:bg-primary-600 [&[data-today]]:text-white',
+  /* 円は背景をセルの内側に切り詰めて描く。p-1.5 と bg-clip-content で四角の枠より内側に
+   * 収まるので、同じ色でも枠と重ならない。padding は絶対配置の ::before を動かさない。 */
+  today:
+    '[&[data-today]]:rounded-full [&[data-today]]:bg-primary-600 [&[data-today]]:bg-clip-content [&[data-today]]:p-1.5 [&[data-today]]:text-white',
 };
 
 const CALENDAR_MODIFIER_CLASS_NAMES = {
-  purchase: 'rounded-md outline-2 -outline-offset-2 outline-primary-600',
+  /* 四角の枠は ::before で描く。outline や border はセル自身の border-radius に従うため、
+   * 今日と重なると rounded-full に引きずられて円になる。 */
+  purchase:
+    "before:absolute before:inset-0.5 before:rounded-md before:border-2 before:border-primary-600 before:content-['']",
   sunday: 'text-danger-600 [&[data-outside]]:text-ink-muted',
   saturday: 'text-info-600 [&[data-outside]]:text-ink-muted',
 };
@@ -35,6 +50,9 @@ export default function Dashboard({ stocks }: Props) {
 
   const todayStocks = stocks.filter((stock) => isToday(stock.next_purchase_date));
 
+  /** カレンダーと次回購入日は全件を見る。購入予定品は1週間先までに絞る。 */
+  const dueStocks = stocks.filter((stock) => isWithinDays(stock.next_purchase_date, 7));
+
   return (
     <AppShell title="ダッシュボード" active="dashboard">
       <div className="mb-8 hidden grid-cols-3 gap-4 md:grid">
@@ -46,7 +64,7 @@ export default function Dashboard({ stocks }: Props) {
         </div>
         <div className="rounded-lg border border-line bg-surface p-5">
           <p className="text-sm text-ink-muted">購入予定品数</p>
-          <p className="mt-1 text-lg font-bold text-ink">{stocks.length}件</p>
+          <p className="mt-1 text-lg font-bold text-ink">{dueStocks.length}件</p>
         </div>
         <div className="rounded-lg border border-line bg-surface p-5">
           <p className="text-sm text-ink-muted">今日の購入予定</p>
@@ -78,16 +96,28 @@ export default function Dashboard({ stocks }: Props) {
 
         <div>
           <h2 className="mb-4 text-lg font-bold text-ink">購入予定品</h2>
-          {stocks.length === 0 ? (
-            <p className="text-sm text-ink-muted">購入予定品はありません</p>
+          {dueStocks.length === 0 ? (
+            <p className="text-sm text-ink-muted">1週間以内に購入予定の品はありません</p>
           ) : (
             <div className="grid grid-cols-2 gap-4">
-              {stocks.map((stock) => (
+              {dueStocks.map((stock) => (
                 <div key={stock.id} className="rounded-lg border border-line bg-surface p-4">
-                  <CategoryIcon
-                    category={stock.product.category?.name}
-                    className="mb-3 text-primary-600"
-                  />
+                  <div className="mb-3 flex items-start justify-between">
+                    <CategoryIcon
+                      category={stock.product.category?.name}
+                      className="text-primary-600"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label={`「${stock.product.name}」を購入済みにする`}
+                      onClick={() => markStockAsPurchased(stock.id)}
+                      className="text-primary-600"
+                    >
+                      <ShoppingCart />
+                    </Button>
+                  </div>
                   <p className="text-sm font-medium text-ink">{stock.product.name}</p>
                   <p className="mt-2 text-xs text-ink-muted">
                     次回 {formatDate(stock.next_purchase_date)}

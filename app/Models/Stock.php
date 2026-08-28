@@ -39,4 +39,14 @@ class Stock extends Model
     {
         return $this->belongsTo(Product::class);
     }
+
+    public static function purchaseDateAfter(int $intervalDays, int $quantity): string
+    {
+        return now()->addDays($intervalDays * $quantity)->toDateString();
+    }
+
+    public function calculateNextPurchaseDate(): string
+    {
+        return self::purchaseDateAfter($this->consumption_interval_days, $this->quantity);
+    }
 }

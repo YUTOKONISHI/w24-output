@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -16,7 +17,7 @@ class StockController extends Controller
 {
     public function index(): Response
     {
-        $stocks = Stock::with('product.category')->where('user_id', Auth::id())->orderBy('next_purchase_date', 'asc')->get();
+        $stocks = Stock::with('product.category')->where('user_id', Auth::id())->orderBy('next_purchase_date', 'asc')->paginate(20);
 
         return Inertia::render('stocks/index', [
             'stocks' => $stocks,
@@ -26,7 +27,7 @@ class StockController extends Controller
     public function create(): Response
     {
         return Inertia::render('stocks/form', [
-            'products' => $this->productsForForm(),
+            'products' => $this->productsForForm(excludeOwned: true),
             'stock' => null,
         ]);
     }
@@ -36,7 +37,7 @@ class StockController extends Controller
         abort_if($stock->user_id !== Auth::id(), 403);
 
         return Inertia::render('stocks/form', [
-            'products' => $this->productsForForm(),
+            'products' => $this->productsForForm(excludeOwned: false),
             'stock' => $stock->load('product.category'),
         ]);
     }
@@ -44,10 +45,12 @@ class StockController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'product_id' => ['required', 'exists:products,id'],
+            'product_id' => ['required', 'exists:products,id', Rule::unique('stocks')->where('user_id', Auth::id())],
             'quantity' => ['required', 'integer', 'min:1'],
             'consumption_interval_days' => ['required', 'integer', 'min:1'],
             'next_purchase_date' => ['nullable', 'date_format:Y-m-d'],
+        ], [
+            'product_id.unique' => 'この商品は既に登録されています',
         ]);
 
         Stock::create([
@@ -89,6 +92,17 @@ class StockController extends Controller
         return to_route('stocks.index');
     }
 
+    public function purchase(Stock $stock): RedirectResponse
+    {
+        abort_if($stock->user_id !== Auth::id(), 403);
+
+        $stock->update([
+            'next_purchase_date' => $stock->calculateNextPurchaseDate(),
+        ]);
+
+        return to_route('dashboard');
+    }
+
     /**
      * 次回購入予定日を決める。
      *
@@ -102,9 +116,10 @@ class StockController extends Controller
             return $request->date('next_purchase_date')->toDateString();
         }
 
-        $days = (int) $request->consumption_interval_days * (int) $request->quantity;
-
-        return now()->addDays($days)->toDateString();
+        return Stock::purchaseDateAfter(
+            (int) $request->consumption_interval_days,
+            (int) $request->quantity,
+        );
     }
 
     /**
@@ -115,13 +130,17 @@ class StockController extends Controller
      *
      * @return Collection<int, Product>
      */
-    private function productsForForm(): Collection
+    private function productsForForm(bool $excludeOwned): Collection
     {
         /** @var User|null $user */
         $user = Auth::guard('web')->user();
         $householdSize = $user?->household_size;
 
         return Product::with('category')
+            ->when($excludeOwned, fn ($query) => $query->whereNotIn(
+                'id',
+                Stock::where('user_id', Auth::id())->pluck('product_id'),
+            ))
             ->orderBy('name', 'asc')
             ->get()
             ->each(fn (Product $product) => $product->setAttribute(

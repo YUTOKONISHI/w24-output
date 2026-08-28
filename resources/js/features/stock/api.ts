@@ -23,3 +23,7 @@ export function updateStock(id: number, payload: StockPayload, onError: (errors:
 export function deleteStock(id: number) {
   router.delete(stocks.destroy.url(id));
 }
+
+export function markStockAsPurchased(id: number) {
+  router.patch(stocks.purchase.url(id), {}, { preserveScroll: true });
+}
