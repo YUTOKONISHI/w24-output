@@ -226,7 +226,7 @@ ON COLUMN
     "notification_logs"."description" IS '通知内容';
 COMMENT
 ON COLUMN
-    "notification_logs"."status" IS '配信を依頼できたか。sent または failed。既読ではない';
+    "notification_logs"."status" IS '既読状態。unread または read';
 COMMENT
 ON COLUMN
     "notification_logs"."created_at" IS '作成日時';
