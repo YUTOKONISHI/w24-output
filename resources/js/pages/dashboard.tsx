@@ -15,11 +15,17 @@ const CALENDAR_CLASS_NAMES = {
   root: 'w-full',
   weekdays: 'flex [&>th:first-child]:text-danger-600 [&>th:last-child]:text-info-600',
   day: 'relative aspect-square w-full p-0 flex items-center justify-center',
-  today: '[&[data-today]]:rounded-full [&[data-today]]:bg-primary-600 [&[data-today]]:text-white',
+  /* 円は背景をセルの内側に切り詰めて描く。p-1.5 と bg-clip-content で四角の枠より内側に
+   * 収まるので、同じ色でも枠と重ならない。padding は絶対配置の ::before を動かさない。 */
+  today:
+    '[&[data-today]]:rounded-full [&[data-today]]:bg-primary-600 [&[data-today]]:bg-clip-content [&[data-today]]:p-1.5 [&[data-today]]:text-white',
 };
 
 const CALENDAR_MODIFIER_CLASS_NAMES = {
-  purchase: 'rounded-md outline-2 -outline-offset-2 outline-primary-600',
+  /* 四角の枠は ::before で描く。outline や border はセル自身の border-radius に従うため、
+   * 今日と重なると rounded-full に引きずられて円になる。 */
+  purchase:
+    "before:absolute before:inset-0.5 before:rounded-md before:border-2 before:border-primary-600 before:content-['']",
   sunday: 'text-danger-600 [&[data-outside]]:text-ink-muted',
   saturday: 'text-info-600 [&[data-outside]]:text-ink-muted',
 };
