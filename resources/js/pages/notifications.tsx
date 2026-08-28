@@ -69,11 +69,11 @@ export default function Notifications({ notifications, vapidPublicKey }: Props) 
         {notifications.data.length === 0 ? (
           <p className="text-sm text-ink-muted">未読の通知はありません</p>
         ) : (
-          <div className="space-y-0">
+          <div className="overflow-hidden rounded-lg border border-line bg-surface">
             {notifications.data.map((notification) => (
               <div
                 key={notification.id}
-                className="flex items-start justify-between gap-2 border-b border-line bg-surface py-4"
+                className="flex items-start justify-between gap-2 border-b border-line px-4 py-4 last:border-b-0"
               >
                 <div>
                   <p className="text-sm text-ink-muted">{formatDate(notification.created_at)}</p>
