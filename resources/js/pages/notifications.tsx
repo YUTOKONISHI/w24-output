@@ -2,12 +2,14 @@ import { Trash2 } from 'lucide-react';
 import { deleteNotification } from '@/features/notification/api';
 import { usePushSubscription } from '@/features/notification/hooks/usePushSubscription';
 import type { NotificationLog } from '@/features/notification/types';
+import { Pagination } from '@/shared/components/Pagination';
 import { Button } from '@/shared/components/ui/button';
 import { AppShell } from '@/shared/layouts/AppShell';
 import { formatDate } from '@/shared/lib/date';
+import type { Paginated } from '@/shared/types/pagination';
 
 type Props = {
-  notifications: NotificationLog[];
+  notifications: Paginated<NotificationLog>;
   vapidPublicKey: string;
 };
 
@@ -56,11 +58,11 @@ export default function Notifications({ notifications, vapidPublicKey }: Props) 
 
       <div>
         <h2 className="mb-3 text-sm font-bold text-ink">通知履歴</h2>
-        {notifications.length === 0 ? (
+        {notifications.data.length === 0 ? (
           <p className="text-sm text-ink-muted">通知履歴はありません</p>
         ) : (
           <div className="space-y-0">
-            {notifications.map((notification) => (
+            {notifications.data.map((notification) => (
               <div
                 key={notification.id}
                 className="flex items-start justify-between gap-2 border-b border-line bg-surface py-4"
@@ -84,6 +86,7 @@ export default function Notifications({ notifications, vapidPublicKey }: Props) 
             ))}
           </div>
         )}
+        <Pagination meta={notifications} />
       </div>
     </AppShell>
   );

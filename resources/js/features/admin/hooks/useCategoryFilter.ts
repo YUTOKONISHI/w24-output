@@ -1,21 +1,27 @@
+import { router } from '@inertiajs/react';
 import { useState } from 'react';
-import type { Category } from '@/shared/types/catalog';
-import type { AdminProduct } from '../types';
+import { dashboard } from '@/routes/admin';
 
-export function useCategoryFilter(categories: Category[], products: AdminProduct[]) {
-  const [selectedCategories, setSelectedCategories] = useState<number[]>(
-    categories.map((category) => category.id),
-  );
+/**
+ * 絞り込みはサーバ側で行う。ページ送りが入っているため、
+ * 受け取った1ページ分だけを filter すると次ページの該当商品が漏れる。
+ */
+export function useCategoryFilter(initialSelected: number[]) {
+  const [selectedCategories, setSelectedCategories] = useState<number[]>(initialSelected);
 
   function toggleCategory(id: number) {
-    setSelectedCategories((prev) =>
-      prev.includes(id) ? prev.filter((categoryId) => categoryId !== id) : [...prev, id],
+    const next = selectedCategories.includes(id)
+      ? selectedCategories.filter((categoryId) => categoryId !== id)
+      : [...selectedCategories, id];
+
+    setSelectedCategories(next);
+
+    router.get(
+      dashboard.url(),
+      { categories: next.join(',') },
+      { preserveState: true, preserveScroll: true, replace: true },
     );
   }
 
-  const filteredProducts = products.filter((product) =>
-    selectedCategories.includes(product.category_id),
-  );
-
-  return { selectedCategories, toggleCategory, filteredProducts };
+  return { selectedCategories, toggleCategory };
 }

@@ -16,7 +16,7 @@ class StockController extends Controller
 {
     public function index(): Response
     {
-        $stocks = Stock::with('product.category')->where('user_id', Auth::id())->orderBy('next_purchase_date', 'asc')->get();
+        $stocks = Stock::with('product.category')->where('user_id', Auth::id())->orderBy('next_purchase_date', 'asc')->paginate(20);
 
         return Inertia::render('stocks/index', [
             'stocks' => $stocks,

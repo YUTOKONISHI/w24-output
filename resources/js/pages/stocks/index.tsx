@@ -2,11 +2,13 @@ import { Link } from '@inertiajs/react';
 import { ChevronRight, Plus } from 'lucide-react';
 import type { Stock } from '@/features/stock/types';
 import stockRoutes from '@/routes/stocks';
+import { Pagination } from '@/shared/components/Pagination';
 import { AppShell } from '@/shared/layouts/AppShell';
 import { formatDate } from '@/shared/lib/date';
+import type { Paginated } from '@/shared/types/pagination';
 
 type Props = {
-  stocks: Stock[];
+  stocks: Paginated<Stock>;
 };
 
 export default function Stocks({ stocks }: Props) {
@@ -17,11 +19,11 @@ export default function Stocks({ stocks }: Props) {
       <div className="max-w-3xl">
         <h2 className="mb-3 text-sm font-bold text-ink">管理項目</h2>
 
-        {stocks.length === 0 ? (
+        {stocks.data.length === 0 ? (
           <p className="text-sm text-ink-muted">登録されているストックはありません</p>
         ) : (
           <div className="overflow-hidden rounded-lg border border-line bg-surface">
-            {stocks.map((stock) => (
+            {stocks.data.map((stock) => (
               <Link
                 key={stock.id}
                 href={stockRoutes.edit.url(stock.id)}
@@ -39,6 +41,8 @@ export default function Stocks({ stocks }: Props) {
             ))}
           </div>
         )}
+
+        <Pagination meta={stocks} />
 
         <div className="mt-4 flex justify-end">
           <Link

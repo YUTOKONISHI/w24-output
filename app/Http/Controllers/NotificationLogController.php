@@ -12,7 +12,7 @@ class NotificationLogController extends Controller
 {
     public function index(): Response
     {
-        $notifications = NotificationLog::where('user_id', Auth::id())->orderBy('created_at', 'desc')->get();
+        $notifications = NotificationLog::where('user_id', Auth::id())->orderBy('created_at', 'desc')->paginate(20);
 
         return Inertia::render('notifications', [
             'notifications' => $notifications,
