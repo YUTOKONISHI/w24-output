@@ -69,62 +69,10 @@ ON COLUMN
     "password_reset_tokens"."email" IS 'メールアドレス';
 COMMENT
 ON COLUMN
-    "password_reset_tokens"."token" IS 'リセットトークン';
+    "password_reset_tokens"."token" IS '仮パスワードのハッシュ';
 COMMENT
 ON COLUMN
     "password_reset_tokens"."created_at" IS '作成日時';
-CREATE TABLE "products"(
-    "id" BIGINT NOT NULL,
-    "category_id" BIGINT NOT NULL,
-    "name" VARCHAR(255) NOT NULL,
-    "default_consumption_interval_days" INTEGER NOT NULL,
-    "created_at" TIMESTAMP(0) WITH
-        TIME zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        "updated_at" TIMESTAMP(0)
-    WITH
-        TIME zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        "created_by" BIGINT NOT NULL,
-        "updated_by" BIGINT NOT NULL
-);
-ALTER TABLE
-    "products" ADD PRIMARY KEY("id");
-COMMENT
-ON COLUMN
-    "products"."category_id" IS 'カテゴリID';
-COMMENT
-ON COLUMN
-    "products"."name" IS '商品名';
-COMMENT
-ON COLUMN
-    "products"."default_consumption_interval_days" IS '消費人数の目安';
-COMMENT
-ON COLUMN
-    "products"."created_at" IS '作成日付';
-COMMENT
-ON COLUMN
-    "products"."updated_at" IS '更新日付';
-CREATE TABLE "categories"(
-    "id" BIGINT NOT NULL,
-    "name" VARCHAR(255) NOT NULL,
-    "created_at" TIMESTAMP(0) WITH
-        TIME zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        "updated_at" TIMESTAMP(0)
-    WITH
-        TIME zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        "created_by" BIGINT NOT NULL,
-        "updated_by" BIGINT NOT NULL
-);
-ALTER TABLE
-    "categories" ADD PRIMARY KEY("id");
-COMMENT
-ON COLUMN
-    "categories"."name" IS 'カテゴリ名';
-COMMENT
-ON COLUMN
-    "categories"."created_at" IS '作成日付';
-COMMENT
-ON COLUMN
-    "categories"."updated_at" IS '更新日付';
 CREATE TABLE "admin"(
     "id" BIGINT NOT NULL,
     "name" VARCHAR(255) NOT NULL,
@@ -149,6 +97,70 @@ ON COLUMN
 COMMENT
 ON COLUMN
     "admin"."updated_at" IS '更新日付';
+CREATE TABLE "categories"(
+    "id" BIGINT NOT NULL,
+    "name" VARCHAR(255) NOT NULL,
+    "created_by" BIGINT NOT NULL,
+    "updated_by" BIGINT NOT NULL,
+    "created_at" TIMESTAMP(0) WITH
+        TIME zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updated_at" TIMESTAMP(0)
+    WITH
+        TIME zone NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+ALTER TABLE
+    "categories" ADD PRIMARY KEY("id");
+COMMENT
+ON COLUMN
+    "categories"."name" IS 'カテゴリ名';
+COMMENT
+ON COLUMN
+    "categories"."created_by" IS '作成した管理者';
+COMMENT
+ON COLUMN
+    "categories"."updated_by" IS '更新した管理者';
+COMMENT
+ON COLUMN
+    "categories"."created_at" IS '作成日付';
+COMMENT
+ON COLUMN
+    "categories"."updated_at" IS '更新日付';
+CREATE TABLE "products"(
+    "id" BIGINT NOT NULL,
+    "category_id" BIGINT NOT NULL,
+    "name" VARCHAR(255) NOT NULL,
+    "default_consumption_interval_days" INTEGER NOT NULL,
+    "created_by" BIGINT NOT NULL,
+    "updated_by" BIGINT NOT NULL,
+    "created_at" TIMESTAMP(0) WITH
+        TIME zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updated_at" TIMESTAMP(0)
+    WITH
+        TIME zone NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+ALTER TABLE
+    "products" ADD PRIMARY KEY("id");
+COMMENT
+ON COLUMN
+    "products"."category_id" IS 'カテゴリID';
+COMMENT
+ON COLUMN
+    "products"."name" IS '商品名';
+COMMENT
+ON COLUMN
+    "products"."default_consumption_interval_days" IS '消費日数の目安。世帯人数で割って初期値にする';
+COMMENT
+ON COLUMN
+    "products"."created_by" IS '作成した管理者';
+COMMENT
+ON COLUMN
+    "products"."updated_by" IS '更新した管理者';
+COMMENT
+ON COLUMN
+    "products"."created_at" IS '作成日付';
+COMMENT
+ON COLUMN
+    "products"."updated_at" IS '更新日付';
 CREATE TABLE "stocks"(
     "id" BIGINT NOT NULL,
     "user_id" BIGINT NOT NULL,
@@ -164,6 +176,8 @@ CREATE TABLE "stocks"(
     WITH
         TIME zone NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+ALTER TABLE
+    "stocks" ADD CONSTRAINT "stocks_user_id_product_id_unique" UNIQUE("user_id", "product_id");
 ALTER TABLE
     "stocks" ADD PRIMARY KEY("id");
 COMMENT
@@ -212,22 +226,68 @@ ON COLUMN
     "notification_logs"."description" IS '通知内容';
 COMMENT
 ON COLUMN
-    "notification_logs"."status" IS 'ステータス';
+    "notification_logs"."status" IS '配信を依頼できたか。sent または failed。既読ではない';
 COMMENT
 ON COLUMN
     "notification_logs"."created_at" IS '作成日時';
 COMMENT
 ON COLUMN
     "notification_logs"."updated_at" IS '更新日時';
+CREATE TABLE "push_subscriptions"(
+    "id" BIGINT NOT NULL,
+    "subscribable_type" VARCHAR(255) NOT NULL,
+    "subscribable_id" BIGINT NOT NULL,
+    "endpoint" VARCHAR(500) NOT NULL,
+    "public_key" VARCHAR(255) NULL,
+    "auth_token" VARCHAR(255) NULL,
+    "content_encoding" VARCHAR(255) NULL,
+    "created_at" TIMESTAMP(0) WITH
+        TIME zone NULL,
+        "updated_at" TIMESTAMP(0)
+    WITH
+        TIME zone NULL
+);
+ALTER TABLE
+    "push_subscriptions" ADD PRIMARY KEY("id");
+ALTER TABLE
+    "push_subscriptions" ADD CONSTRAINT "push_subscriptions_endpoint_unique" UNIQUE("endpoint");
+COMMENT
+ON COLUMN
+    "push_subscriptions"."subscribable_type" IS '購読者のモデル名。App\Models\User が入る';
+COMMENT
+ON COLUMN
+    "push_subscriptions"."subscribable_id" IS '購読者のID。users.id を指すが外部キーは張らない';
+COMMENT
+ON COLUMN
+    "push_subscriptions"."endpoint" IS 'ブラウザが発行する配信先URL';
+COMMENT
+ON COLUMN
+    "push_subscriptions"."public_key" IS '暗号化の公開鍵(p256dh)';
+COMMENT
+ON COLUMN
+    "push_subscriptions"."auth_token" IS '暗号化の認証シークレット';
+COMMENT
+ON COLUMN
+    "push_subscriptions"."content_encoding" IS '本文のエンコード方式';
+COMMENT
+ON COLUMN
+    "push_subscriptions"."created_at" IS '作成日時';
+COMMENT
+ON COLUMN
+    "push_subscriptions"."updated_at" IS '更新日時';
+ALTER TABLE
+    "products" ADD CONSTRAINT "products_category_id_foreign" FOREIGN KEY("category_id") REFERENCES "categories"("id");
+ALTER TABLE
+    "stocks" ADD CONSTRAINT "stocks_user_id_foreign" FOREIGN KEY("user_id") REFERENCES "users"("id");
+ALTER TABLE
+    "categories" ADD CONSTRAINT "categories_updated_by_foreign" FOREIGN KEY("updated_by") REFERENCES "admin"("id");
 ALTER TABLE
     "products" ADD CONSTRAINT "products_created_by_foreign" FOREIGN KEY("created_by") REFERENCES "admin"("id");
 ALTER TABLE
-    "stocks" ADD CONSTRAINT "stocks_user_id_foreign" FOREIGN KEY("user_id") REFERENCES "users"("id") ON DELETE CASCADE;
+    "products" ADD CONSTRAINT "products_updated_by_foreign" FOREIGN KEY("updated_by") REFERENCES "admin"("id");
 ALTER TABLE
-    "notification_logs" ADD CONSTRAINT "notification_logs_user_id_foreign" FOREIGN KEY("user_id") REFERENCES "users"("id") ON DELETE CASCADE;
-ALTER TABLE
-    "stocks" ADD CONSTRAINT "stocks_product_id_foreign" FOREIGN KEY("product_id") REFERENCES "products"("id") ON DELETE RESTRICT;
+    "notification_logs" ADD CONSTRAINT "notification_logs_user_id_foreign" FOREIGN KEY("user_id") REFERENCES "users"("id");
 ALTER TABLE
     "categories" ADD CONSTRAINT "categories_created_by_foreign" FOREIGN KEY("created_by") REFERENCES "admin"("id");
 ALTER TABLE
-    "products" ADD CONSTRAINT "products_category_id_foreign" FOREIGN KEY("category_id") REFERENCES "categories"("id") ON DELETE RESTRICT;
+    "stocks" ADD CONSTRAINT "stocks_product_id_foreign" FOREIGN KEY("product_id") REFERENCES "products"("id");
