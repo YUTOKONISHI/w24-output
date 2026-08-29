@@ -30,3 +30,6 @@ yarn-error.log
 # IDE 用の生成物
 /_ide_helper.php
 /_ide_helper_models.php
+
+# 他者の著作物を含むため追跡しない
+/.claude/
