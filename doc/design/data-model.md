@@ -44,7 +44,7 @@ admin ──┬─< categories ──< products ──< stocks >── users ─
 | 列 | 型 | 制約 | 備考 |
 |---|---|---|---|
 | `id` | bigserial | PK | |
-| `name` | varchar(255) | NOT NULL | ログインIDを兼ねる。一意制約は無い |
+| `name` | varchar(255) | NOT NULL, UNIQUE | ログインIDを兼ねる |
 | `password` | varchar(255) | NOT NULL | ハッシュ済み |
 | `created_at` / `updated_at` | timestamptz | NOT NULL | |
 
