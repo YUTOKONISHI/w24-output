@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\LogRequest;
+use App\Support\LogContext;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -14,14 +16,13 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->append(LogRequest::class);
+
         $middleware->web(append: [
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ]);
 
-        // 未認証のときの送り先を URL の接頭辞で振り分ける。既定では web ガードの
-        // login に送られるため、管理画面に入ろうとした人が一般ユーザーの
-        // ログイン画面に着いてしまう。
         $middleware->redirectGuestsTo(
             fn (Request $request) => $request->is('admin/*')
                 ? route('admin.login')
@@ -32,4 +33,19 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*'),
         );
+
+        $exceptions->context(function (): array {
+            if (app()->runningInConsole()) {
+                return [];
+            }
+
+            $request = request();
+
+            return [
+                'method' => $request->method(),
+                'path' => '/'.ltrim($request->path(), '/'),
+                ...LogContext::actor(),
+                'ip' => $request->ip(),
+            ];
+        });
     })->create();
