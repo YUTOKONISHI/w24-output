@@ -26,3 +26,7 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+
+# IDE 用の生成物
+/_ide_helper.php
+/_ide_helper_models.php

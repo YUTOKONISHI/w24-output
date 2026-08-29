@@ -68,7 +68,8 @@ REST APIは持たず、画面とサーバはInertiaでつなぐ。
 - [管理者向けのマスタ管理](doc/design/admin.md)
 - [非機能の実現方法](doc/design/non-functional.md)
 
-DB設計の図の正本は [drawSQL](https://drawsql.app/teams/konishi/diagrams/portfolio/docs) にあり、エクスポートを `doc/specifications/` に置く。
+DB設計の図の正本は drawSQL 側にある（非公開のワークスペースのため外部からは開けない）。
+エクスポートした [`doc/specifications/drawSQL-pgsql-export-2026-08-28.sql`](doc/specifications/drawSQL-pgsql-export-2026-08-28.sql) がリポジトリ内の写しである。
 
 ## 動かし方
 
