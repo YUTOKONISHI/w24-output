@@ -68,13 +68,18 @@
    - APIリクエストおよびエラーログの記録 
 
 - 認証 
-  - Laravel Sanctum認証 
+  - ~~Laravel Sanctum認証~~ → **Fortify のセッション認証を正とする**（2026-08-15 決定）
 
 - セキュリティ
     - XSS / CSRF対策
 
 - API設計
-  - REST API
+  - ~~REST API~~ → **Inertia を正とする**（2026-08-15 決定）
+
+### 認証とAPI設計を変えた理由
+現行は Inertia とセッション認証（Fortify の `web` ガードと `admin` ガード）で動いている。
+API化は既存画面すべてに波及するため実施しない。
+経緯は `doc/plans/20260815-requirement-gap-fixes.md` にある。
 
 ## 5. 主要な画面構成・一部
 - 一般ユーザー
