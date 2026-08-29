@@ -79,7 +79,7 @@
 
 - ログ設計
    - APIリクエストおよびエラーログの記録 
-   - 未実装。設計は `doc/plans/20260823-request-error-logging.md` にある
+   - 実装済み。現行の姿は `doc/design/non-functional.md`、決めた経緯は `doc/plans/20260823-request-error-logging.md` にある
 
 - 認証 
   - ~~Laravel Sanctum認証~~ → **Fortify のセッション認証を正とする**（2026-08-15 決定）
@@ -113,6 +113,11 @@ API化は既存画面すべてに波及するため実施しない。
 - サーバーサイド言語：PHP
     - 使用するフレームワーク：Laravel
 - DB：PostgreSQL
+
+# 基本設計書
+本書が「何を作るか」を書くのに対し、「どう作られているか」は `doc/design/` にある。
+索引は `doc/design/README.md`。
+コードが正本で、設計書はその写しである。
 
 # ペルソナ設定
 * 項目\t内容
