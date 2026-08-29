@@ -377,3 +377,11 @@ docker compose exec laravel.test php artisan schedule:test --name="app:send-purc
 
 既読にすれば画面から消えるので利用者は困らない。
 保持期間を決めて古い行を消す仕組みは、対象外のまま別に起票する。
+
+## 追記（2026-08-29）：Sail 経由での実行に揃えた
+
+「`command` を持つサービスは `WWWUSER` が要る」の節に「このプロジェクトは `docker compose` を直接叩いている」と書いたが、**コマンドは `./vendor/bin/sail` に揃える。**
+
+`WWWUSER` と `WWWGROUP` を `.env` と `.env.example` に置いた対処はそのまま残す。
+`vendor/bin/sail` はこの2つを `export` するので sail 経由なら不要だが、`docker compose` を直接叩く場面（CI、エージェントによる検証）でも同じ値が要る。
+置いてあって害はない。
