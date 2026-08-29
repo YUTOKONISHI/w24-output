@@ -17,43 +17,73 @@ type Props = {
   onClose: () => void;
 };
 
+type Errors = Partial<Record<'current_password' | 'password', string>>;
+
 export function PasswordChangeDialog({ open, onClose }: Props) {
+  const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [errors, setErrors] = useState<Errors>({});
+
+  function reset() {
+    setCurrentPassword('');
+    setNewPassword('');
+    setConfirmPassword('');
+    setErrors({});
+  }
 
   function handleSubmit() {
+    setErrors({});
+
     if (newPassword !== confirmPassword) {
-      toast.error('パスワードが一致しません');
+      setErrors({ password: 'パスワードが一致しません' });
 
       return;
     }
 
     updatePassword(
       {
+        current_password: currentPassword,
         password: newPassword,
         password_confirmation: confirmPassword,
       },
       {
         onSuccess: () => {
-          setNewPassword('');
-          setConfirmPassword('');
+          reset();
           toast.success('パスワードを変更しました');
           onClose();
         },
-        onError: () => {
-          toast.error('パスワード変更に失敗しました');
+        onError: (received) => {
+          setErrors(received);
         },
       },
     );
   }
 
+  function handleClose() {
+    reset();
+    onClose();
+  }
+
   return (
-    <Dialog open={open} onOpenChange={(next) => !next && onClose()}>
+    <Dialog open={open} onOpenChange={(next) => !next && handleClose()}>
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
           <DialogTitle>パスワード変更</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
+          <div className="space-y-1">
+            <Label htmlFor="current-password">現在のパスワード</Label>
+            <Input
+              id="current-password"
+              type="password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+            />
+            {errors.current_password && (
+              <p className="text-xs text-danger-600">{errors.current_password}</p>
+            )}
+          </div>
           <div className="space-y-1">
             <Label htmlFor="new-password">新しいパスワード</Label>
             <Input
@@ -62,6 +92,7 @@ export function PasswordChangeDialog({ open, onClose }: Props) {
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
             />
+            {errors.password && <p className="text-xs text-danger-600">{errors.password}</p>}
           </div>
           <div className="space-y-1">
             <Label htmlFor="confirm-password">パスワード確認</Label>
@@ -74,7 +105,7 @@ export function PasswordChangeDialog({ open, onClose }: Props) {
           </div>
         </div>
         <DialogFooter>
-          <Button type="button" variant="ghost" onClick={onClose}>
+          <Button type="button" variant="ghost" onClick={handleClose}>
             キャンセル
           </Button>
           <Button type="button" onClick={handleSubmit}>

@@ -14,7 +14,7 @@ export function logout() {
 }
 
 export function updatePassword(
-  values: { password: string; password_confirmation: string },
+  values: { current_password: string; password: string; password_confirmation: string },
   callbacks: Callbacks,
 ) {
   router.post(admin.adminPassword.url(), values, callbacks);

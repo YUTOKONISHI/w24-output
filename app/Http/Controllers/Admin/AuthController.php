@@ -7,6 +7,7 @@ use App\Models\Admin;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -47,7 +48,10 @@ class AuthController extends Controller
     public function updateAdminPassword(Request $request): RedirectResponse
     {
         $request->validate([
-            'password' => ['required', 'confirmed', 'min:8'],
+            'current_password' => ['required', 'string', 'current_password:admin'],
+            'password' => ['required', 'string', Password::default(), 'confirmed'],
+        ], [
+            'current_password.current_password' => '現在のパスワードが違います。',
         ]);
 
         /** @var Admin $admin */
