@@ -133,8 +133,15 @@
 - 不明瞭な点がある場合は必ず人間に確認を取ること
 
 ## 実行環境
-- Dockerコンテナ上でアプリケーションを動かしている
-- フロントのコマンドもコンテナ経由で叩く。ホストにnodeが無い
+- Laravel Sail で開発している。アプリケーションはDockerコンテナ上で動く
+- ホストにnodeもphpも無い。npmもartisanもcomposerもコンテナ経由で叩く
+- コマンドは `./vendor/bin/sail ...` に揃える（例: `./vendor/bin/sail composer ci:check`）
+- ただしAIエージェントが検証で叩くときは `docker compose exec -T laravel.test ...` を使う。`vendor/bin/sail` は `AI_AGENT` や `CLAUDECODE` をコンテナへ転送し、pintとphpstanがエージェント向けの出力に切り替わる。phpstanは出力を返さず終了コードだけを返すため、問題が無くても失敗に見える
+
+## Laravelの書き方の指針
+- Laravel Boost が配る指針は `doc/boost-guidelines.md` にある。`boost:install` の既定はAGENTS.mdとCLAUDE.mdだが、本書の内容が埋もれるので `config/boost.php` で向き先を変えている
+- 生成物なので手で編集しない。`composer update` のたびに `boost:update` が書き換える
+- 本書の記述と食い違う場合は本書を優先する
 
 ## 計画書
 doc\plans配下の要件概要書をもとに計画を作成する
